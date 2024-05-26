@@ -1,6 +1,9 @@
 plugins {
     id 'fabric-loom' version '1.6-SNAPSHOT'
     id 'maven-publish'
+
+    // Shadow plugin for creating a single "fat" jar with all dependencies
+    id 'com.github.johnrengelman.shadow' version "8.1.1"
 }
 
 sourceCompatibility = JavaVersion.VERSION_21
@@ -46,6 +49,15 @@ dependencies {
         implementation("io.github.spair:imgui-java-natives-$it:$imguiVersion")
         include("io.github.spair:imgui-java-natives-$it:$imguiVersion")
     }
+
+    // Attendance library (dependency)
+    modImplementation "com.github.vialdevelopment:attendance:rewrite-SNAPSHOT"
+}
+
+// Fabric Loom configuration
+loom {
+    // Access Widener for Fabric Loom
+    accessWidenerPath = file("src/main/resources/quasar.accesswidener")
 }
 
 processResources {
@@ -55,6 +67,40 @@ processResources {
     filesMatching("fabric.mod.json") {
         expand "version": project.version
     }
+}
+
+// Configure the Shadow JAR task
+tasks.shadowJar {
+    // Set the name of the output JAR file
+    archiveFileName = "${project.archives_base_name}-${project.version}-compiled.jar"
+
+    // Include the Attendance library as a dependency
+    dependencies {
+        include(dependency('com.github.vialdevelopment:attendance:rewrite-SNAPSHOT'))
+    }
+
+    // Relocate the Attendance library package
+    relocate 'io.github.vialdevelopment.attendance', "${project.group}.shadow.attendance"
+
+    // Clean up the 'libs' directory after creating the shadowed JAR
+    doLast {
+        def libsDir = new File(DEFAULT_BUILD_DIR_NAME as File, 'libs')
+        libsDir.listFiles().findAll { it.name != archiveFileName.get() }.each { it.delete() }
+    }
+}
+
+// Configure the task execution order
+tasks.whenTaskAdded { task ->
+    // Ensure the shadowJar task runs after all other tasks
+    if (task.name != 'shadowJar') {
+        tasks.shadowJar.mustRunAfter task
+    }
+}
+
+// Configure the build task
+tasks.build {
+    // Add the shadowJar task as a finalizer for the build task
+    finalizedBy shadowJar
 }
 
 java {

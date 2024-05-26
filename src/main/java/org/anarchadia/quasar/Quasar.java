@@ -7,13 +7,13 @@
 
 package org.anarchadia.quasar;
 
-import org.anarchadia.quasar.command.CommandManager;
-import org.anarchadia.quasar.config.ConfigManager;
-import org.anarchadia.quasar.eventbus.EventBus;
-import org.anarchadia.quasar.module.ModuleManager;
-import org.anarchadia.quasar.setting.SettingManager;
-import org.anarchadia.quasar.util.QuasarLogger;
-import org.anarchadia.quasar.util.TPSUtil;
+import io.github.vialdevelopment.attendance.manager.impl.ParentEventManager;
+import org.anarchadia.quasar.api.command.CommandManager;
+import org.anarchadia.quasar.api.config.ConfigManager;
+import org.anarchadia.quasar.api.setting.SettingManager;
+import org.anarchadia.quasar.api.util.QuasarLogger;
+import org.anarchadia.quasar.api.util.TPSUtil;
+import org.anarchadia.quasar.api.module.ModuleManager;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.minecraft.client.MinecraftClient;
@@ -26,11 +26,12 @@ public class Quasar implements ModInitializer {
     public static final String MOD_VERSION = "1.0";
     public static final MinecraftClient mc = MinecraftClient.getInstance();
     private static Quasar INSTANCE;
-    private final EventBus EVENT_BUS = new EventBus();
     private final ModuleManager MODULE_MANAGER = new ModuleManager();
     private final CommandManager COMMAND_MANAGER = new CommandManager();
     private final SettingManager SETTING_MANAGER = new SettingManager();
     private final ConfigManager CONFIG_MANAGER = new ConfigManager();
+    public final ParentEventManager EVENT_MANAGER = new ParentEventManager();
+
 
     public Quasar() {
         INSTANCE = this;
@@ -57,24 +58,27 @@ public class Quasar implements ModInitializer {
             CONFIG_MANAGER.save();
             QuasarLogger.logger.info("Saved config!");
         });
+
+        EVENT_MANAGER.setAttending(MODULE_MANAGER, true);
+        EVENT_MANAGER.setAttending(TPSUtil.INSTANCE, true);
+        getEventManager().build();
     }
 
     /**
      * Called when Minecraft has finished loading.
      *
-     * @see org.anarchadia.quasar.mixin.MinecraftClientMixin
+     * @see org.anarchadia.quasar.impl.mixins.MinecraftClientMixin
      */
     public void postInitialize() {
-        EVENT_BUS.register(TPSUtil.INSTANCE);
         QuasarLogger.logger.info("Registered TickRateUtil!");
         QuasarLogger.logger.info(MOD_NAME + " v" + MOD_VERSION + " (phase 2) has initialized!");
     }
 
     /**
-     * Gets the event bus.
+     * Gets the event manager
      */
-    public EventBus getEventBus() {
-        return EVENT_BUS;
+    public ParentEventManager getEventManager() {
+        return EVENT_MANAGER;
     }
 
     /**

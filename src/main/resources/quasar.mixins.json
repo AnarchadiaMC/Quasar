@@ -1,7 +1,7 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "org.anarchadia.quasar.mixin",
+  "package": "org.anarchadia.quasar.impl.mixins",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
   ],
