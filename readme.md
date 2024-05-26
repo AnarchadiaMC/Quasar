@@ -1,5 +1,5 @@
-# Haiku
-<img style="width: 50px; height: 50px;" src="https://github.com/vil/haiku/blob/master/src/main/resources/assets/haiku/icon.png" alt="logo">
+# Quasar
+<img style="width: 50px; height: 50px;" src="https://github.com/vil/quasar/blob/master/src/main/resources/assets/quasar/icon.png" alt="logo">
 
 Open source base client for the latest Fabric version.
 
@@ -16,7 +16,7 @@ Feel free to use this for your own client. Also feel free to make pull requests 
 
 ## Installation
 1. Make sure to have the [latest Java](https://www.oracle.com/java/technologies/downloads/) version installed.
-2. Clone the repository `git clone https://github.com/vil/haiku.git`
+2. Clone the repository `git clone https://github.com/vil/quasar.git`
 3. Open it with your favourite IDE, such as Intellij Idea.
 4. Run `gradlew genSources` or `./gradlew genSources` depending on your OS.
 5. Happy coding!
