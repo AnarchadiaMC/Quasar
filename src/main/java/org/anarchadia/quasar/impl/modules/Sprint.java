@@ -11,6 +11,7 @@ import io.github.vialdevelopment.attendance.attender.Attender;
 import org.anarchadia.quasar.api.event.events.TickEvent;
 import org.anarchadia.quasar.api.module.Module;
 import org.lwjgl.glfw.GLFW;
+import team.stiff.pomelo.impl.annotated.handler.annotation.Listener;
 
 /* Example module */
 public class Sprint extends Module {
@@ -19,11 +20,12 @@ public class Sprint extends Module {
         super("Sprint", "Automatically sprints for you.", GLFW.GLFW_KEY_R, Category.MOVEMENT);
     }
 
-    Attender<TickEvent> onTick = new Attender<>(TickEvent.class, event -> {
+    @Listener
+    public void onTickEvent(TickEvent event) {
         if (mc.world == null || mc.player == null) return;
 
         if (mc.player.forwardSpeed > 0 && !mc.player.horizontalCollision && !mc.player.isSneaking()) {
             mc.player.setSprinting(true);
         }
-    });
+    }
 }

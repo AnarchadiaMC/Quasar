@@ -31,7 +31,7 @@ public class WorldRendererMixin {
     private void render_head(float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer,
                              LightmapTextureManager lightmapTextureManager, Matrix4f matrix4f, Matrix4f matrix4f2, CallbackInfo ci) {
         RenderEvent event = new RenderEvent(EventStageable.EventStage.PRE, tickDelta, new MatrixStack());
-        Quasar.getInstance().getEventManager().dispatch(event);
+        Quasar.getInstance().getEventManager().dispatchEvent(event);
         if (event.isCanceled()) {
             ci.cancel();
         }
@@ -42,6 +42,6 @@ public class WorldRendererMixin {
                                LightmapTextureManager lightmapTextureManager, Matrix4f matrix4f, Matrix4f matrix4f2, CallbackInfo ci) {
         RenderSystem.clear(GL11.GL_DEPTH_BUFFER_BIT, MinecraftClient.IS_SYSTEM_MAC);
         RenderEvent event = new RenderEvent(EventStageable.EventStage.POST, tickDelta, new MatrixStack());
-        Quasar.getInstance().getEventManager().dispatch(event);
+        Quasar.getInstance().getEventManager().dispatchEvent(event);
     }
 }

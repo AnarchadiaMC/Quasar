@@ -26,13 +26,13 @@ public class KeyboardMixin {
         switch (action) {
             case 0 -> {
                 KeyEvent event = new KeyEvent(key, scanCode, KeyEvent.Status.RELEASED);
-                Quasar.getInstance().getEventManager().dispatch(event);
+                Quasar.getInstance().getEventManager().dispatchEvent(event);
                 if (event.isCanceled()) ci.cancel();
             }
             case 1 -> {
                 KeyEvent event = new KeyEvent(key, scanCode, KeyEvent.Status.PRESSED);
                 Quasar.getInstance().getModuleManager().getModules().stream().filter(m -> m.getKey() == key).forEach(Module::toggle);
-                Quasar.getInstance().getEventManager().dispatch(event);
+                Quasar.getInstance().getEventManager().dispatchEvent(event);
                 if (event.isCanceled()) ci.cancel();
             }
         }

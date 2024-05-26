@@ -15,7 +15,7 @@ public class InGameHudMixin {
     @Inject(method = "render", at = @At("RETURN"), cancellable = true)
     private void render(DrawContext context, float tickDelta, CallbackInfo ci) {
         RenderInGameHudEvent event = new RenderInGameHudEvent(context);
-        Quasar.getInstance().getEventManager().dispatch(event);
+        Quasar.getInstance().getEventManager().dispatchEvent(event);
 
         if (event.isCanceled()) {
             ci.cancel();

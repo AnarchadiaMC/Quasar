@@ -29,14 +29,14 @@ public class ClientConnectionMixin {
     @Inject(method = "channelRead0*", at = @At("HEAD"), cancellable = true)
     private void packetReceivePre(ChannelHandlerContext channelHandlerContext, Packet<?> packet, CallbackInfo ci) {
         PacketReceiveEvent event = new PacketReceiveEvent(PRE, packet);
-        Quasar.getInstance().getEventManager().dispatch(event);
+        Quasar.getInstance().getEventManager().dispatchEvent(event);
         if (event.isCanceled()) ci.cancel();
     }
 
     @Inject(method = "channelRead0*", at = @At("TAIL"))
     private void packetReceivePost(ChannelHandlerContext channelHandlerContext, Packet<?> packet, CallbackInfo ci) {
         PacketReceiveEvent event = new PacketReceiveEvent(POST, packet);
-        Quasar.getInstance().getEventManager().dispatch(event);
+        Quasar.getInstance().getEventManager().dispatchEvent(event);
     }
 
     @Inject(method = "send(Lnet/minecraft/network/packet/Packet;)V", at = @At("HEAD"), cancellable = true)
@@ -50,7 +50,7 @@ public class ClientConnectionMixin {
         }
 
         PacketSendEvent event = new PacketSendEvent(PRE, packet);
-        Quasar.getInstance().getEventManager().dispatch(event);
+        Quasar.getInstance().getEventManager().dispatchEvent(event);
         if(event.isCanceled()) ci.cancel();
     }
 

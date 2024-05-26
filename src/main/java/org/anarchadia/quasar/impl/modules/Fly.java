@@ -14,6 +14,7 @@ import org.anarchadia.quasar.api.setting.settings.NumberSetting;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.util.math.BlockPos;
 import org.lwjgl.glfw.GLFW;
+import team.stiff.pomelo.impl.annotated.handler.annotation.Listener;
 
 public class Fly extends Module {
     public final NumberSetting speed = new NumberSetting("Speed", "How fast to fly.", 3, 0.1, 10, 0.1);
@@ -34,7 +35,8 @@ public class Fly extends Module {
         super.onDisable();
     }
 
-    Attender<TickEvent> onTick = new Attender<>(TickEvent.class, event -> {
+    @Listener
+    public void onTickEvent(TickEvent event) {
         if (mc.world == null || mc.player == null) return;
         float flySpeed = (int) speed.getValue();
         mc.player.getAbilities().flying = true;
@@ -47,5 +49,5 @@ public class Fly extends Module {
             mc.player.networkHandler.sendPacket(new PlayerMoveC2SPacket.PositionAndOnGround(mc.player.getX(), mc.player.getY() + 0.0433D, mc.player.getZ(), false));
             mc.player.networkHandler.sendPacket(new PlayerMoveC2SPacket.PositionAndOnGround(mc.player.getX(), mc.player.getY() - 0.0433D, mc.player.getZ(), true));
         }
-    });
+    }
 }

@@ -18,6 +18,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.util.math.Vec3d;
 import org.lwjgl.glfw.GLFW;
+import team.stiff.pomelo.impl.annotated.handler.annotation.Listener;
 
 import java.awt.*;
 
@@ -46,7 +47,8 @@ public class RenderTest extends Module {
         super.onDisable();
     }
 
-    Attender<RenderEvent> onRender = new Attender<>(RenderEvent.class, event -> {
+    @Listener
+    public void onRenderEvent(RenderEvent event) {
         if (mc.world == null || mc.player == null) return;
 
         if (box3D.isEnabled()) {
@@ -67,5 +69,5 @@ public class RenderTest extends Module {
                 }
             }
         }
-    });
+    }
 }

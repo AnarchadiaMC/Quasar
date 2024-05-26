@@ -15,6 +15,7 @@ import org.anarchadia.quasar.api.setting.settings.BooleanSetting;
 import org.anarchadia.quasar.api.setting.settings.StringSetting;
 import org.anarchadia.quasar.api.util.TPSUtil;
 import org.lwjgl.glfw.GLFW;
+import team.stiff.pomelo.impl.annotated.handler.annotation.Listener;
 
 public class Hud extends Module {
     public final BooleanSetting watermark = new BooleanSetting("Watermark", "Renders the Quasar watermark.", true);
@@ -28,7 +29,8 @@ public class Hud extends Module {
         this.addSettings(watermark, watermarkText, arraylist, ticks, fps);
     }
 
-    Attender<RenderInGameHudEvent> onRenderHud = new Attender<>(RenderInGameHudEvent.class, event -> {
+    @Listener
+    public void onRenderHudEvent(RenderInGameHudEvent event) {
         if (mc.world == null || mc.player == null) return;
         if (mc.getDebugHud().shouldShowDebugHud()) return;
 
@@ -62,6 +64,6 @@ public class Hud extends Module {
                 event.getContext().drawTextWithShadow(mc.textRenderer, ">" + module.name, 2, y += 10, 0xFFFFFF);
             }
         }
-    });
 
+    }
 }

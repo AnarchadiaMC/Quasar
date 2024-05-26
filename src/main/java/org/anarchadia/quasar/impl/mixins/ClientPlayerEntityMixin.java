@@ -22,7 +22,7 @@ public class ClientPlayerEntityMixin {
     private void tick(CallbackInfo ci) {
         if (Quasar.mc.player != null && Quasar.mc.world != null) {
             TickEvent event = new TickEvent();
-            Quasar.getInstance().getEventManager().dispatch(event);
+            Quasar.getInstance().getEventManager().dispatchEvent(event);
         }
     }
 }

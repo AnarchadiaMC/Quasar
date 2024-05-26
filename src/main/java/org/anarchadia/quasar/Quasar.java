@@ -17,6 +17,7 @@ import org.anarchadia.quasar.api.module.ModuleManager;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.minecraft.client.MinecraftClient;
+import team.stiff.pomelo.impl.annotated.AnnotatedEventManager;
 
 /**
  * Main class for quasar.
@@ -24,13 +25,13 @@ import net.minecraft.client.MinecraftClient;
 public class Quasar implements ModInitializer {
     public static final String MOD_NAME = "Quasar";
     public static final String MOD_VERSION = "1.0";
-    public static final MinecraftClient mc = MinecraftClient.getInstance();
+    public static MinecraftClient mc;
     private static Quasar INSTANCE;
-    private final ModuleManager MODULE_MANAGER = new ModuleManager();
-    private final CommandManager COMMAND_MANAGER = new CommandManager();
-    private final SettingManager SETTING_MANAGER = new SettingManager();
-    private final ConfigManager CONFIG_MANAGER = new ConfigManager();
-    public final ParentEventManager EVENT_MANAGER = new ParentEventManager();
+    private ModuleManager MODULE_MANAGER;
+    private CommandManager COMMAND_MANAGER;
+    private SettingManager SETTING_MANAGER;
+    private ConfigManager CONFIG_MANAGER;
+    public AnnotatedEventManager EVENT_MANAGER;
 
 
     public Quasar() {
@@ -49,7 +50,14 @@ public class Quasar implements ModInitializer {
      */
     @Override
     public void onInitialize() {
-        QuasarLogger.logger.info(MOD_NAME + " v" + MOD_VERSION + " (phase 1) has initialized!");
+        mc = MinecraftClient.getInstance();
+        MODULE_MANAGER = new ModuleManager();
+        COMMAND_MANAGER = new CommandManager();
+        SETTING_MANAGER = new SettingManager();
+        CONFIG_MANAGER = new ConfigManager();
+        EVENT_MANAGER = new AnnotatedEventManager();
+
+        QuasarLogger.logger.info(MOD_NAME + " v" + MOD_VERSION + " has initialized!");
         CONFIG_MANAGER.load();
         QuasarLogger.logger.info("Loaded config!");
 
@@ -58,10 +66,6 @@ public class Quasar implements ModInitializer {
             CONFIG_MANAGER.save();
             QuasarLogger.logger.info("Saved config!");
         });
-
-        EVENT_MANAGER.setAttending(MODULE_MANAGER, true);
-        EVENT_MANAGER.setAttending(TPSUtil.INSTANCE, true);
-        getEventManager().build();
     }
 
     /**
@@ -70,14 +74,15 @@ public class Quasar implements ModInitializer {
      * @see org.anarchadia.quasar.impl.mixins.MinecraftClientMixin
      */
     public void postInitialize() {
+        getEventManager().addEventListener(TPSUtil.INSTANCE);
         QuasarLogger.logger.info("Registered TickRateUtil!");
-        QuasarLogger.logger.info(MOD_NAME + " v" + MOD_VERSION + " (phase 2) has initialized!");
+        QuasarLogger.logger.info(MOD_NAME + " v" + MOD_VERSION + " has posted beyond initialization!");
     }
 
     /**
      * Gets the event manager
      */
-    public ParentEventManager getEventManager() {
+    public AnnotatedEventManager getEventManager() {
         return EVENT_MANAGER;
     }
 

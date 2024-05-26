@@ -13,13 +13,15 @@ import org.anarchadia.quasar.api.event.events.PacketEvent;
 import net.minecraft.network.packet.s2c.play.WorldTimeUpdateS2CPacket;
 import net.minecraft.util.math.MathHelper;
 import org.anarchadia.quasar.api.event.events.PacketReceiveEvent;
+import team.stiff.pomelo.impl.annotated.handler.annotation.Listener;
 
 public class TPSUtil {
     public static TPSUtil INSTANCE = new TPSUtil();
     private static double ticks = 0;
     private static long prevTime = 0;
 
-    Attender<PacketReceiveEvent> onPacketReceived = new Attender<>(PacketReceiveEvent.class, event -> {
+    @Listener
+    public void setOnPacketReceived(PacketReceiveEvent event) {
         if(event.getStage() == EventStageable.EventStage.PRE) {
             if (event.getPacket() instanceof WorldTimeUpdateS2CPacket) {
                 long time = System.currentTimeMillis();
@@ -28,7 +30,7 @@ public class TPSUtil {
                 prevTime = time;
             }
         }
-    });
+    }
 
     /**
      * Returns the ticks per-second.

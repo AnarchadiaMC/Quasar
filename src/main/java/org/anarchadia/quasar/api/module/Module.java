@@ -64,8 +64,7 @@ public abstract class Module {
      * Called when the module is enabled.
      */
     public void onEnable() {
-        Quasar.getInstance().getEventManager().setAttending(this, true);
-        Quasar.getInstance().getEventManager().registerAttender(this);
+        Quasar.getInstance().getEventManager().addEventListener(this);
         Quasar.getInstance().getConfigManager().save();
 
         QuasarLogger.info(Formatting.GREEN + "Enabled " + this.getName() + "!");
@@ -75,8 +74,7 @@ public abstract class Module {
      * Called when the module is disabled.
      */
     public void onDisable() {
-        Quasar.getInstance().getEventManager().setAttending(this, false);
-        Quasar.getInstance().getEventManager().unregisterAttender(this);
+        Quasar.getInstance().getEventManager().removeEventListener(this);
         Quasar.getInstance().getConfigManager().save();
 
         QuasarLogger.info(Formatting.RED + "Disabled " + this.getName() + "!");
