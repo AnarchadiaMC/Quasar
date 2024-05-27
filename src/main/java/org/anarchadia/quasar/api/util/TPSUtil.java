@@ -7,9 +7,7 @@
 
 package org.anarchadia.quasar.api.util;
 
-import io.github.vialdevelopment.attendance.attender.Attender;
 import org.anarchadia.quasar.api.event.EventStageable;
-import org.anarchadia.quasar.api.event.events.PacketEvent;
 import net.minecraft.network.packet.s2c.play.WorldTimeUpdateS2CPacket;
 import net.minecraft.util.math.MathHelper;
 import org.anarchadia.quasar.api.event.events.PacketReceiveEvent;
@@ -21,7 +19,7 @@ public class TPSUtil {
     private static long prevTime = 0;
 
     @Listener
-    public void setOnPacketReceived(PacketReceiveEvent event) {
+    public void onPacketReceivedEvent(PacketReceiveEvent event) {
         if(event.getStage() == EventStageable.EventStage.PRE) {
             if (event.getPacket() instanceof WorldTimeUpdateS2CPacket) {
                 long time = System.currentTimeMillis();

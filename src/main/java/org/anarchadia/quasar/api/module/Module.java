@@ -1,18 +1,11 @@
-/*
- * Copyright (c) 2024. Vili and contributors.
- * This source code is subject to the terms of the GNU General Public
- * License, version 3. If a copy of the GPL was not distributed with this
- *  file, You can obtain one at: https://www.gnu.org/licenses/gpl-3.0.txt
- */
-
 package org.anarchadia.quasar.api.module;
 
-import org.anarchadia.quasar.Quasar;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.util.Formatting;
+import org.anarchadia.quasar.Quasar;
 import org.anarchadia.quasar.api.setting.Setting;
 import org.anarchadia.quasar.api.setting.settings.KeybindSetting;
 import org.anarchadia.quasar.api.util.QuasarLogger;
+import net.minecraft.util.Formatting;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,7 +15,7 @@ import java.util.List;
 public abstract class Module {
     public static final MinecraftClient mc = MinecraftClient.getInstance();
     public String name, description;
-    public KeybindSetting keyCode = new KeybindSetting(0);
+    public KeybindSetting keyCode;
     public Category category;
     public boolean enabled;
     public List<Setting> settings = new ArrayList<>();
@@ -30,28 +23,25 @@ public abstract class Module {
     /**
      * Module constructor.
      *
-     * @param name name of the module.
+     * @param name        name of the module.
      * @param description description of the module.
-     * @param key GLFW keybinding.
-     * @param category module category.
-     *
-     * @implNote addSettings() must be called in the constructor, otherwise the module will not have its settings.
+     * @param key         GLFW key binding.
+     * @param category    module category.
      */
     public Module(String name, String description, int key, Category category) {
         super();
         this.name = name;
         this.description = description;
-        keyCode.code = key;
+        this.keyCode = new KeybindSetting(key); // Ensure the key is initialized here
         this.category = category;
+        this.enabled = false; // Ensure default value
 
         /* Add default settings */
         addSettings(keyCode);
     }
 
-
     /**
-     * Adds settings to the module.
-     * Must be called in the constructor.
+     * Adds settings to the module. Must be called in the constructor.
      *
      * @param settings settings to add
      */
@@ -85,23 +75,14 @@ public abstract class Module {
      */
     public void toggle() {
         this.enabled = !this.enabled;
-
         if (this.enabled) onEnable();
         else onDisable();
     }
 
-    /**
-     * Gets the enabled state of the module.
-     */
     public boolean isEnabled() {
         return this.enabled;
     }
 
-    /**
-     * Sets the enabled state of the module.
-     *
-     * @param enabled enabled state to set
-     */
     public void setEnabled(boolean enabled) {
         if (this.enabled != enabled) {
             toggle();
@@ -110,43 +91,26 @@ public abstract class Module {
 
     /* -------- Getters -------- */
 
-    /**
-     * Gets the name of the module.
-     */
     public String getName() {
         return this.name;
     }
 
-    /**
-     * Gets the description of the module.
-     */
     public String getDescription() {
         return this.description;
     }
 
-    /**
-     * Gets the category of the module.
-     */
     public Category getCategory() {
         return this.category;
     }
 
-    /**
-     * Gets the key of the module.
-     */
     public int getKey() {
-        return this.keyCode.code;
+        return this.keyCode.getKeyCode();
     }
 
     /* -------- Setters -------- */
 
-    /**
-     * Sets the key of the module.
-     *
-     * @param key key to set
-     */
     public void setKey(int key) {
-        this.keyCode.code = key;
+        this.keyCode.setKeyCode(key);
     }
 
     /**

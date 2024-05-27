@@ -3,19 +3,18 @@
   "minVersion": "0.8",
   "package": "org.anarchadia.quasar.impl.mixins",
   "compatibilityLevel": "JAVA_17",
-  "mixins": [
-  ],
+  "mixins": [],
   "client": [
+    "MinecraftClientMixin",
+    "GameRendererMixin",
+    "WorldRendererMixin",
     "ClientConnectionMixin",
     "ClientPlayerEntityMixin",
-    "ExampleMixin",
-    "GameRendererMixin",
     "InGameHudMixin",
     "KeyboardMixin",
-    "MinecraftClientMixin",
     "ScreenMixin",
     "TelemetryManagerMixin",
-    "WorldRendererMixin"
+    "ExampleMixin"
   ],
   "injectors": {
     "defaultRequire": 1

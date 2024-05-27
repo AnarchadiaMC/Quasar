@@ -7,7 +7,6 @@
 
 package org.anarchadia.quasar;
 
-import io.github.vialdevelopment.attendance.manager.impl.ParentEventManager;
 import org.anarchadia.quasar.api.command.CommandManager;
 import org.anarchadia.quasar.api.config.ConfigManager;
 import org.anarchadia.quasar.api.setting.SettingManager;
@@ -25,13 +24,13 @@ import team.stiff.pomelo.impl.annotated.AnnotatedEventManager;
 public class Quasar implements ModInitializer {
     public static final String MOD_NAME = "Quasar";
     public static final String MOD_VERSION = "1.0";
-    public static MinecraftClient mc;
+    public static MinecraftClient mc = MinecraftClient.getInstance();
     private static Quasar INSTANCE;
-    private ModuleManager MODULE_MANAGER;
-    private CommandManager COMMAND_MANAGER;
-    private SettingManager SETTING_MANAGER;
-    private ConfigManager CONFIG_MANAGER;
-    public AnnotatedEventManager EVENT_MANAGER;
+    private final ModuleManager MODULE_MANAGER = new ModuleManager();
+    private final CommandManager COMMAND_MANAGER = new CommandManager();
+    private final SettingManager SETTING_MANAGER = new SettingManager();
+    private final ConfigManager CONFIG_MANAGER = new ConfigManager();
+    public AnnotatedEventManager EVENT_MANAGER = new AnnotatedEventManager();
 
 
     public Quasar() {
@@ -50,21 +49,22 @@ public class Quasar implements ModInitializer {
      */
     @Override
     public void onInitialize() {
-        mc = MinecraftClient.getInstance();
-        MODULE_MANAGER = new ModuleManager();
-        COMMAND_MANAGER = new CommandManager();
-        SETTING_MANAGER = new SettingManager();
-        CONFIG_MANAGER = new ConfigManager();
-        EVENT_MANAGER = new AnnotatedEventManager();
-
         QuasarLogger.logger.info(MOD_NAME + " v" + MOD_VERSION + " has initialized!");
-        CONFIG_MANAGER.load();
-        QuasarLogger.logger.info("Loaded config!");
+        try {
+            CONFIG_MANAGER.load();
+            QuasarLogger.logger.info("Loaded config!");
+        } catch (Exception e) {
+            QuasarLogger.logger.error("Error loading config: " + e.getMessage(), e);
+        }
 
         // Save configs on shutdown
         ClientLifecycleEvents.CLIENT_STOPPING.register(client -> {
-            CONFIG_MANAGER.save();
-            QuasarLogger.logger.info("Saved config!");
+            try {
+                CONFIG_MANAGER.save();
+                QuasarLogger.logger.info("Saved config!");
+            } catch (Exception e) {
+                QuasarLogger.logger.error("Error saving config: " + e.getMessage(), e);
+            }
         });
     }
 

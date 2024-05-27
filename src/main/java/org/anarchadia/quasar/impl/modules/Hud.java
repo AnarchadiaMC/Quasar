@@ -7,7 +7,6 @@
 
 package org.anarchadia.quasar.impl.modules;
 
-import io.github.vialdevelopment.attendance.attender.Attender;
 import org.anarchadia.quasar.Quasar;
 import org.anarchadia.quasar.api.event.events.RenderInGameHudEvent;
 import org.anarchadia.quasar.api.module.Module;
