@@ -1,5 +1,5 @@
 # Quasar
-<img style="width: 50px; height: 50px;" src="https://github.com/vil/quasar/blob/master/src/main/resources/assets/quasar/icon.png" alt="logo">
+<img style="width: 50px; height: 50px;" src="https://github.com/AnarchadiaMC/quasar/blob/master/src/main/resources/assets/quasar/icon.png" alt="logo">
 
 Open source base client for the latest Fabric version.
 
