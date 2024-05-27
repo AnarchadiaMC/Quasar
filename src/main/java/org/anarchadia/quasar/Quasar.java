@@ -10,7 +10,7 @@ package org.anarchadia.quasar;
 import org.anarchadia.quasar.api.command.CommandManager;
 import org.anarchadia.quasar.api.config.ConfigManager;
 import org.anarchadia.quasar.api.setting.SettingManager;
-import org.anarchadia.quasar.api.util.QuasarLogger;
+import org.anarchadia.quasar.api.util.LoggingUtil;
 import org.anarchadia.quasar.api.util.TPSUtil;
 import org.anarchadia.quasar.api.module.ModuleManager;
 import net.fabricmc.api.ModInitializer;
@@ -49,21 +49,21 @@ public class Quasar implements ModInitializer {
      */
     @Override
     public void onInitialize() {
-        QuasarLogger.logger.info(MOD_NAME + " v" + MOD_VERSION + " has initialized!");
+        LoggingUtil.logger.info(MOD_NAME + " v" + MOD_VERSION + " has initialized!");
         try {
             CONFIG_MANAGER.load();
-            QuasarLogger.logger.info("Loaded config!");
+            LoggingUtil.logger.info("Loaded config!");
         } catch (Exception e) {
-            QuasarLogger.logger.error("Error loading config: " + e.getMessage(), e);
+            LoggingUtil.logger.error("Error loading config: " + e.getMessage(), e);
         }
 
         // Save configs on shutdown
         ClientLifecycleEvents.CLIENT_STOPPING.register(client -> {
             try {
                 CONFIG_MANAGER.save();
-                QuasarLogger.logger.info("Saved config!");
+                LoggingUtil.logger.info("Saved config!");
             } catch (Exception e) {
-                QuasarLogger.logger.error("Error saving config: " + e.getMessage(), e);
+                LoggingUtil.logger.error("Error saving config: " + e.getMessage(), e);
             }
         });
     }
@@ -75,8 +75,8 @@ public class Quasar implements ModInitializer {
      */
     public void postInitialize() {
         getEventManager().addEventListener(TPSUtil.INSTANCE);
-        QuasarLogger.logger.info("Registered TickRateUtil!");
-        QuasarLogger.logger.info(MOD_NAME + " v" + MOD_VERSION + " has posted beyond initialization!");
+        LoggingUtil.logger.info("Registered TickRateUtil!");
+        LoggingUtil.logger.info(MOD_NAME + " v" + MOD_VERSION + " has posted beyond initialization!");
     }
 
     /**

@@ -16,8 +16,8 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class QuasarLogger {
-    public static final Logger logger = LogManager.getFormatterLogger("quasar");
+public class LoggingUtil {
+    public static final Logger logger = LogManager.getFormatterLogger("Quasar");
     public static int INFO_COLOR = Formatting.LIGHT_PURPLE.getColorValue();
     public static int WARN_COLOR = Formatting.YELLOW.getColorValue();
     public static int ERROR_COLOR = Formatting.RED.getColorValue();

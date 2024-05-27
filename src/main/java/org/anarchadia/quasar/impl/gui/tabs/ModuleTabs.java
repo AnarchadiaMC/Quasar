@@ -12,7 +12,7 @@ import org.anarchadia.quasar.impl.gui.QuasarGUI;
 import org.anarchadia.quasar.api.module.Module;
 import org.anarchadia.quasar.api.setting.Setting;
 import org.anarchadia.quasar.api.setting.settings.*;
-import org.anarchadia.quasar.api.util.QuasarLogger;
+import org.anarchadia.quasar.api.util.LoggingUtil;
 import imgui.ImGui;
 import imgui.flag.ImGuiInputTextFlags;
 import imgui.flag.ImGuiWindowFlags;
@@ -51,7 +51,7 @@ public class ModuleTabs {
                     case "ModeSetting" -> settingsMap.put(setting, new ImInt(((ModeSetting) setting).index));
                     case "KeybindSetting" -> settingsMap.put(setting, new ImInt(((KeybindSetting) setting).getKeyCode()));
                     case "StringSetting" -> settingsMap.put(setting, new ImString(((StringSetting) setting).getString()));
-                    default -> QuasarLogger.logger.warn("Unknown setting type: " + setting.getClass().getSimpleName());
+                    default -> LoggingUtil.logger.warn("Unknown setting type: " + setting.getClass().getSimpleName());
                 }
             }
         }
@@ -161,7 +161,7 @@ public class ModuleTabs {
                             }
                         }
                     }
-                    default -> QuasarLogger.logger.warn("Unknown setting type: " + setting.getClass().getSimpleName());
+                    default -> LoggingUtil.logger.warn("Unknown setting type: " + setting.getClass().getSimpleName());
                 }
             }
             if (ImGui.isItemHovered()) {

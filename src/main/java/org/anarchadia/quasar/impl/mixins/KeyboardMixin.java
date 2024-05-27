@@ -8,7 +8,7 @@
 package org.anarchadia.quasar.impl.mixins;
 
 import org.anarchadia.quasar.Quasar;
-import org.anarchadia.quasar.api.event.events.KeyEvent;
+import org.anarchadia.quasar.api.event.events.client.KeyEvent;
 import org.anarchadia.quasar.api.module.Module;
 import net.minecraft.client.Keyboard;
 import org.spongepowered.asm.mixin.Mixin;

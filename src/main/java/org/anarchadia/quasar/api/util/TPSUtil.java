@@ -10,7 +10,7 @@ package org.anarchadia.quasar.api.util;
 import org.anarchadia.quasar.api.event.EventStageable;
 import net.minecraft.network.packet.s2c.play.WorldTimeUpdateS2CPacket;
 import net.minecraft.util.math.MathHelper;
-import org.anarchadia.quasar.api.event.events.PacketReceiveEvent;
+import org.anarchadia.quasar.api.event.events.network.PacketReceiveEvent;
 import team.stiff.pomelo.impl.annotated.handler.annotation.Listener;
 
 public class TPSUtil {

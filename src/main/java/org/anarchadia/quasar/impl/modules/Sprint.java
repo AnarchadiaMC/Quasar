@@ -7,7 +7,7 @@
 
 package org.anarchadia.quasar.impl.modules;
 
-import org.anarchadia.quasar.api.event.events.TickEvent;
+import org.anarchadia.quasar.api.event.events.client.TickEvent;
 import org.anarchadia.quasar.api.module.Module;
 import org.lwjgl.glfw.GLFW;
 import team.stiff.pomelo.impl.annotated.handler.annotation.Listener;

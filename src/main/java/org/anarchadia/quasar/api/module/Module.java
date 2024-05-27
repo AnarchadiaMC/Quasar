@@ -4,7 +4,7 @@ import net.minecraft.client.MinecraftClient;
 import org.anarchadia.quasar.Quasar;
 import org.anarchadia.quasar.api.setting.Setting;
 import org.anarchadia.quasar.api.setting.settings.KeybindSetting;
-import org.anarchadia.quasar.api.util.QuasarLogger;
+import org.anarchadia.quasar.api.util.LoggingUtil;
 import net.minecraft.util.Formatting;
 
 import java.util.ArrayList;
@@ -57,7 +57,7 @@ public abstract class Module {
         Quasar.getInstance().getEventManager().addEventListener(this);
         Quasar.getInstance().getConfigManager().save();
 
-        QuasarLogger.info(Formatting.GREEN + "Enabled " + this.getName() + "!");
+        LoggingUtil.info(Formatting.GREEN + "Enabled " + this.getName() + "!");
     }
 
     /**
@@ -67,7 +67,7 @@ public abstract class Module {
         Quasar.getInstance().getEventManager().removeEventListener(this);
         Quasar.getInstance().getConfigManager().save();
 
-        QuasarLogger.info(Formatting.RED + "Disabled " + this.getName() + "!");
+        LoggingUtil.info(Formatting.RED + "Disabled " + this.getName() + "!");
     }
 
     /**

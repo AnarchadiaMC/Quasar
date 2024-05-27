@@ -8,7 +8,7 @@
 package org.anarchadia.quasar.impl.modules;
 
 import org.anarchadia.quasar.Quasar;
-import org.anarchadia.quasar.api.event.events.RenderInGameHudEvent;
+import org.anarchadia.quasar.api.event.events.render.RenderInGameHudEvent;
 import org.anarchadia.quasar.api.module.Module;
 import org.anarchadia.quasar.api.setting.settings.BooleanSetting;
 import org.anarchadia.quasar.api.setting.settings.StringSetting;

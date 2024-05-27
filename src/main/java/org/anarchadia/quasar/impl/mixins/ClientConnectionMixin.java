@@ -8,13 +8,12 @@
 package org.anarchadia.quasar.impl.mixins;
 
 import org.anarchadia.quasar.Quasar;
-import org.anarchadia.quasar.api.event.events.PacketEvent;
 import io.netty.channel.ChannelHandlerContext;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.c2s.play.ChatMessageC2SPacket;
-import org.anarchadia.quasar.api.event.events.PacketReceiveEvent;
-import org.anarchadia.quasar.api.event.events.PacketSendEvent;
+import org.anarchadia.quasar.api.event.events.network.PacketReceiveEvent;
+import org.anarchadia.quasar.api.event.events.network.PacketSendEvent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

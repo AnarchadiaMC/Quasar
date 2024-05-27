@@ -8,7 +8,7 @@
 package org.anarchadia.quasar.impl.mixins;
 
 import org.anarchadia.quasar.Quasar;
-import org.anarchadia.quasar.api.event.events.TickEvent;
+import org.anarchadia.quasar.api.event.events.client.TickEvent;
 import net.minecraft.client.network.ClientPlayerEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

@@ -9,7 +9,7 @@ package org.anarchadia.quasar.impl.commands;
 
 import org.anarchadia.quasar.Quasar;
 import org.anarchadia.quasar.api.command.Command;
-import org.anarchadia.quasar.api.util.QuasarLogger;
+import org.anarchadia.quasar.api.util.LoggingUtil;
 
 import java.util.stream.Collectors;
 
@@ -22,16 +22,16 @@ public class HelpCmd extends Command {
     @Override
     public void onCommand(String[] args, String command) {
         if (args.length == 0) {
-            QuasarLogger.info("Commands: " + Quasar.getInstance().getCommandManager().commands.stream()
+            LoggingUtil.info("Commands: " + Quasar.getInstance().getCommandManager().commands.stream()
                     .map(Command::getName).collect(Collectors.joining(", ")));
         } else {
             for (Command cmd : Quasar.getInstance().getCommandManager().commands) {
                 if (cmd.getName().equalsIgnoreCase(args[0])) {
-                    QuasarLogger.info(cmd.getSyntax());
+                    LoggingUtil.info(cmd.getSyntax());
                     return;
                 }
             }
-            QuasarLogger.error("Command not found.");
+            LoggingUtil.error("Command not found.");
         }
     }
 }

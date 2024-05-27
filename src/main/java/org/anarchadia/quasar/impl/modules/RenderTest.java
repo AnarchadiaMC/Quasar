@@ -7,10 +7,10 @@
 
 package org.anarchadia.quasar.impl.modules;
 
-import org.anarchadia.quasar.api.event.events.RenderEvent;
+import org.anarchadia.quasar.api.event.events.render.RenderEvent;
 import org.anarchadia.quasar.api.module.Module;
 import org.anarchadia.quasar.api.setting.settings.BooleanSetting;
-import org.anarchadia.quasar.api.util.QuasarLogger;
+import org.anarchadia.quasar.api.util.LoggingUtil;
 import org.anarchadia.quasar.api.util.RenderUtil;
 import net.minecraft.client.render.Camera;
 import net.minecraft.entity.Entity;
@@ -38,7 +38,7 @@ public class RenderTest extends Module {
     public void onEnable() {
         super.onEnable();
 
-        QuasarLogger.info("RenderTest will be rendering on the player. Change to third person view, to see them correctly.");
+        LoggingUtil.info("RenderTest will be rendering on the player. Change to third person view, to see them correctly.");
     }
 
     @Override

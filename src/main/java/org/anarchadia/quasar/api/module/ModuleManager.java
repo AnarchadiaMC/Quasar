@@ -8,7 +8,7 @@
 package org.anarchadia.quasar.api.module;
 
 import org.anarchadia.quasar.Quasar;
-import org.anarchadia.quasar.api.event.events.KeyEvent;
+import org.anarchadia.quasar.api.event.events.client.KeyEvent;
 import org.anarchadia.quasar.impl.modules.*;
 import net.minecraft.client.util.InputUtil;
 import org.lwjgl.glfw.GLFW;
@@ -23,7 +23,6 @@ public class ModuleManager {
         modules = new ArrayList<>();
 
         /* Add modules here */
-        modules.add(new Dummy());
         modules.add(new Fly());
         modules.add(new GUI());
         modules.add(new Hud());

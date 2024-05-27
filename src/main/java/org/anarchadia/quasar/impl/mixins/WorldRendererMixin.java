@@ -10,7 +10,7 @@ package org.anarchadia.quasar.impl.mixins;
 import com.mojang.blaze3d.systems.RenderSystem;
 import org.anarchadia.quasar.Quasar;
 import org.anarchadia.quasar.api.event.EventStageable;
-import org.anarchadia.quasar.api.event.events.RenderEvent;
+import org.anarchadia.quasar.api.event.events.render.RenderEvent;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.GameRenderer;

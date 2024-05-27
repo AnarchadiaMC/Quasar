@@ -13,8 +13,7 @@
     "InGameHudMixin",
     "KeyboardMixin",
     "ScreenMixin",
-    "TelemetryManagerMixin",
-    "ExampleMixin"
+    "TelemetryManagerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

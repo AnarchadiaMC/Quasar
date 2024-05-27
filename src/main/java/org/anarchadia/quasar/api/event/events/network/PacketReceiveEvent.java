@@ -1,4 +1,4 @@
-package org.anarchadia.quasar.api.event.events;
+package org.anarchadia.quasar.api.event.events.network;
 
 import net.minecraft.network.packet.Packet;
 import org.anarchadia.quasar.api.event.EventCancellable;

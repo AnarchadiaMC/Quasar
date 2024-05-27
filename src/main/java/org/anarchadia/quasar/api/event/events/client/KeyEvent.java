@@ -5,7 +5,7 @@
  *  file, You can obtain one at: https://www.gnu.org/licenses/gpl-3.0.txt
  */
 
-package org.anarchadia.quasar.api.event.events;
+package org.anarchadia.quasar.api.event.events.client;
 
 import org.anarchadia.quasar.api.event.EventCancellable;
 

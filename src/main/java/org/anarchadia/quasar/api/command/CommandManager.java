@@ -9,7 +9,7 @@ package org.anarchadia.quasar.api.command;
 
 import org.anarchadia.quasar.impl.commands.HelpCmd;
 import org.anarchadia.quasar.impl.commands.ToggleCmd;
-import org.anarchadia.quasar.api.util.QuasarLogger;
+import org.anarchadia.quasar.api.util.LoggingUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,7 +49,7 @@ public class CommandManager {
                     break;
                 }
             }
-            if (!commandFound) QuasarLogger.error("Command not found, use " + prefix + "help");
+            if (!commandFound) LoggingUtil.error("Command not found, use " + prefix + "help");
         }
     }
 

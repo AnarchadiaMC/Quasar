@@ -1,7 +1,7 @@
 package org.anarchadia.quasar.impl.mixins;
 
 import org.anarchadia.quasar.Quasar;
-import org.anarchadia.quasar.api.event.events.RenderInGameHudEvent;
+import org.anarchadia.quasar.api.event.events.render.RenderInGameHudEvent;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.InGameHud;
 import org.spongepowered.asm.mixin.Mixin;

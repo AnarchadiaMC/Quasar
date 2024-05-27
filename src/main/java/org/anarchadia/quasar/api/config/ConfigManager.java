@@ -7,7 +7,7 @@ import org.anarchadia.quasar.api.setting.settings.BooleanSetting;
 import org.anarchadia.quasar.api.setting.settings.ModeSetting;
 import org.anarchadia.quasar.api.setting.settings.NumberSetting;
 import org.anarchadia.quasar.api.setting.settings.StringSetting;
-import org.anarchadia.quasar.api.util.QuasarLogger;
+import org.anarchadia.quasar.api.util.LoggingUtil;
 import net.minecraft.client.MinecraftClient;
 
 import java.io.File;
@@ -33,7 +33,7 @@ public class ConfigManager {
                 file.createNewFile();
             }
         } catch (Exception e) {
-            QuasarLogger.logger.error(e.getMessage());
+            LoggingUtil.logger.error(e.getMessage());
         }
     }
 
@@ -47,23 +47,23 @@ public class ConfigManager {
 
     public void save() {
         try {
-            QuasarLogger.logger.info("Saving config...");
+            LoggingUtil.logger.info("Saving config...");
             Properties properties = new Properties();
             processSettings(properties, true);
             properties.storeToXML(new FileOutputStream(file), null);
         } catch (Exception e) {
-            QuasarLogger.logger.error("Error while saving config!", e);
+            LoggingUtil.logger.error("Error while saving config!", e);
         }
     }
 
     public void load() {
         try {
-            QuasarLogger.logger.info("Loading config...");
+            LoggingUtil.logger.info("Loading config...");
             Properties properties = new Properties();
             properties.loadFromXML(new FileInputStream(file));
             processSettings(properties, false);
         } catch (Exception e) {
-            QuasarLogger.logger.error("Error while loading config!", e);
+            LoggingUtil.logger.error("Error while loading config!", e);
         }
     }
 
@@ -101,7 +101,7 @@ public class ConfigManager {
                 processKeybindSetting(save, properties, module);
                 break;
             default:
-                QuasarLogger.logger.error("Unknown setting type: " + className);
+                LoggingUtil.logger.error("Unknown setting type: " + className);
         }
     }
 

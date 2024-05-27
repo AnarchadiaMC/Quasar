@@ -10,7 +10,7 @@ package org.anarchadia.quasar.impl.commands;
 import org.anarchadia.quasar.Quasar;
 import org.anarchadia.quasar.api.command.Command;
 import org.anarchadia.quasar.api.module.Module;
-import org.anarchadia.quasar.api.util.QuasarLogger;
+import org.anarchadia.quasar.api.util.LoggingUtil;
 
 public class ToggleCmd extends Command {
 
@@ -22,7 +22,7 @@ public class ToggleCmd extends Command {
     @Override
     public void onCommand(String[] args, String command) {
         if (args.length == 0) {
-            QuasarLogger.error("Please specify a module.");
+            LoggingUtil.error("Please specify a module.");
             return;
         }
 
@@ -30,7 +30,7 @@ public class ToggleCmd extends Command {
         Module module = Quasar.getInstance().getModuleManager().getModule(String.valueOf(moduleName));
 
         if (module == null) {
-            QuasarLogger.error("Module not found.");
+            LoggingUtil.error("Module not found.");
             return;
         }
 

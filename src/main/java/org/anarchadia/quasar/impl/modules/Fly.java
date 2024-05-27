@@ -7,7 +7,7 @@
 
 package org.anarchadia.quasar.impl.modules;
 
-import org.anarchadia.quasar.api.event.events.TickEvent;
+import org.anarchadia.quasar.api.event.events.client.TickEvent;
 import org.anarchadia.quasar.api.module.Module;
 import org.anarchadia.quasar.api.setting.settings.NumberSetting;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
