@@ -16,7 +16,7 @@ Feel free to use this for your own client. Also feel free to make pull requests 
 
 ## Installation
 1. Make sure to have the [latest Java](https://www.oracle.com/java/technologies/downloads/) version installed.
-2. Clone the repository `git clone https://github.com/vil/quasar.git`
+2. Clone the repository `git clone https://github.com/AnarchadiaMC/quasar.git`
 3. Open it with your favourite IDE, such as Intellij Idea.
 4. Run `gradlew genSources` or `./gradlew genSources` depending on your OS.
 5. Happy coding!
