@@ -75,6 +75,7 @@ public class Quasar implements ModInitializer {
      */
     public void postInitialize() {
         getEventManager().addEventListener(TPSUtil.INSTANCE);
+        getEventManager().addEventListener(CONFIG_MANAGER);
         LoggingUtil.logger.info("Registered TickRateUtil!");
         LoggingUtil.logger.info(MOD_NAME + " v" + MOD_VERSION + " has posted beyond initialization!");
     }

@@ -12,6 +12,9 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
+/**
+ * Abstract Module class representing a functional module in the application.
+ */
 public abstract class Module {
     public static final MinecraftClient mc = MinecraftClient.getInstance();
     public String name, description;
@@ -71,7 +74,7 @@ public abstract class Module {
     }
 
     /**
-     * Toggles a module.
+     * Toggles the module's state.
      */
     public void toggle() {
         this.enabled = !this.enabled;
@@ -79,36 +82,86 @@ public abstract class Module {
         else onDisable();
     }
 
+    /**
+     * Checks if the module is enabled.
+     *
+     * @return true if the module is enabled, false otherwise.
+     */
     public boolean isEnabled() {
         return this.enabled;
     }
 
+    /**
+     * Sets the enabled state of the module.
+     *
+     * @param enabled true to enable the module, false to disable.
+     */
     public void setEnabled(boolean enabled) {
         if (this.enabled != enabled) {
             toggle();
         }
     }
 
+    /**
+     * Gets a setting by its name.
+     *
+     * @param name the name of the setting.
+     * @return the setting with the specified name, or null if no such setting exists.
+     */
+    public Setting getSettingByName(String name) {
+        for (Setting setting : settings) {
+            if (setting.getName().equals(name)) {
+                return setting;
+            }
+        }
+        return null; // Return null if no setting is found with the given name
+    }
+
     /* -------- Getters -------- */
 
+    /**
+     * Gets the name of the module.
+     *
+     * @return the module name.
+     */
     public String getName() {
         return this.name;
     }
 
+    /**
+     * Gets the description of the module.
+     *
+     * @return the module description.
+     */
     public String getDescription() {
         return this.description;
     }
 
+    /**
+     * Gets the category of the module.
+     *
+     * @return the module category.
+     */
     public Category getCategory() {
         return this.category;
     }
 
+    /**
+     * Gets the key code of the module.
+     *
+     * @return the key code.
+     */
     public int getKey() {
         return this.keyCode.getKeyCode();
     }
 
     /* -------- Setters -------- */
 
+    /**
+     * Sets the key code of the module.
+     *
+     * @param key the key code to set.
+     */
     public void setKey(int key) {
         this.keyCode.setKeyCode(key);
     }
