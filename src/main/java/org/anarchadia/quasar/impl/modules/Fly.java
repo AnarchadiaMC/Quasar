@@ -9,14 +9,14 @@ package org.anarchadia.quasar.impl.modules;
 
 import org.anarchadia.quasar.api.event.events.client.TickEvent;
 import org.anarchadia.quasar.api.module.Module;
-import org.anarchadia.quasar.api.setting.settings.NumberSetting;
+import org.anarchadia.quasar.api.setting.Setting;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.util.math.BlockPos;
 import org.lwjgl.glfw.GLFW;
 import team.stiff.pomelo.impl.annotated.handler.annotation.Listener;
 
 public class Fly extends Module {
-    public final NumberSetting speed = new NumberSetting("Speed", "How fast to fly.", 3, 0.1, 10, 0.1);
+    public final Setting<Float> speed = new Setting<Float>("Speed", "How fast to fly.", 3f, 0.1f, 10f, 0.1f);
     private int antiKickTimer = 0;
 
     public Fly() {
@@ -37,10 +37,9 @@ public class Fly extends Module {
     @Listener
     public void onTickEvent(TickEvent event) {
         if (mc.world == null || mc.player == null) return;
-        float flySpeed = (int) speed.getValue();
         mc.player.getAbilities().flying = true;
         mc.player.getAbilities().allowFlying = true;
-        mc.player.getAbilities().setFlySpeed(flySpeed / 10f);
+        mc.player.getAbilities().setFlySpeed(speed.getValue() / 10f);
 
         antiKickTimer++;
         if (antiKickTimer > 20 && mc.player.getWorld().getBlockState(BlockPos.ofFloored(mc.player.getPos().subtract(0, 0.0433D, 0))).isAir()) {

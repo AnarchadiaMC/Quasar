@@ -3,7 +3,6 @@ package org.anarchadia.quasar.api.module;
 import net.minecraft.client.MinecraftClient;
 import org.anarchadia.quasar.Quasar;
 import org.anarchadia.quasar.api.setting.Setting;
-import org.anarchadia.quasar.api.setting.settings.KeybindSetting;
 import org.anarchadia.quasar.api.util.LoggingUtil;
 import net.minecraft.util.Formatting;
 
@@ -18,10 +17,10 @@ import java.util.List;
 public abstract class Module {
     public static final MinecraftClient mc = MinecraftClient.getInstance();
     public String name, description;
-    public KeybindSetting keyCode;
+    public Setting<Integer> keyCode;
     public Category category;
     public boolean enabled;
-    public List<Setting> settings = new ArrayList<>();
+    public List<Setting<?>> settings = new ArrayList<>();
 
     /**
      * Module constructor.
@@ -35,7 +34,7 @@ public abstract class Module {
         super();
         this.name = name;
         this.description = description;
-        this.keyCode = new KeybindSetting(key); // Ensure the key is initialized here
+        this.keyCode = new Setting<>("keyCode", "Key binding for module", key);
         this.category = category;
         this.enabled = false; // Ensure default value
 
@@ -48,7 +47,7 @@ public abstract class Module {
      *
      * @param settings settings to add
      */
-    public void addSettings(Setting... settings) {
+    public void addSettings(Setting<?>... settings) {
         this.settings.addAll(Arrays.asList(settings));
         this.settings.sort(Comparator.comparingInt(s -> s == keyCode ? 1 : 0));
     }
@@ -108,8 +107,8 @@ public abstract class Module {
      * @param name the name of the setting.
      * @return the setting with the specified name, or null if no such setting exists.
      */
-    public Setting getSettingByName(String name) {
-        for (Setting setting : settings) {
+    public Setting<?> getSettingByName(String name) {
+        for (Setting<?> setting : settings) {
             if (setting.getName().equals(name)) {
                 return setting;
             }
@@ -138,6 +137,15 @@ public abstract class Module {
     }
 
     /**
+     * Gets the settings of the module.
+     *
+     * @return the list of settings.
+     */
+    public List<Setting<?>> getSettings() {
+        return settings;
+    }
+
+    /**
      * Gets the category of the module.
      *
      * @return the module category.
@@ -152,7 +160,7 @@ public abstract class Module {
      * @return the key code.
      */
     public int getKey() {
-        return this.keyCode.getKeyCode();
+        return this.keyCode.getValue();
     }
 
     /* -------- Setters -------- */
@@ -163,7 +171,7 @@ public abstract class Module {
      * @param key the key code to set.
      */
     public void setKey(int key) {
-        this.keyCode.setKeyCode(key);
+        this.keyCode.setValue(key);
     }
 
     /**

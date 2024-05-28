@@ -1,17 +1,9 @@
-/*
- * Copyright (c) 2024. Vili and contributors.
- * This source code is subject to the terms of the GNU General Public
- * License, version 3. If a copy of the GPL was not distributed with this
- *  file, You can obtain one at: https://www.gnu.org/licenses/gpl-3.0.txt
- */
-
 package org.anarchadia.quasar.impl.gui.tabs;
 
 import org.anarchadia.quasar.Quasar;
 import org.anarchadia.quasar.impl.gui.QuasarGUI;
 import org.anarchadia.quasar.api.module.Module;
 import org.anarchadia.quasar.api.setting.Setting;
-import org.anarchadia.quasar.api.setting.settings.*;
 import org.anarchadia.quasar.api.util.LoggingUtil;
 import imgui.ImGui;
 import imgui.flag.ImGuiInputTextFlags;
@@ -26,7 +18,7 @@ import java.util.HashMap;
 
 public class ModuleTabs {
     private static final HashMap<Module, ImBoolean> enabledMap = new HashMap<>();
-    private static final HashMap<Setting, Object> settingsMap = new HashMap<>();
+    private static final HashMap<Setting<?>, Object> settingsMap = new HashMap<>();
     private static final HashMap<Module.Category, Boolean> categoryMap = new HashMap<>();
     private static final HashMap<Module, Boolean> showSettingsMap = new HashMap<>();
     private static boolean binding;
@@ -44,14 +36,19 @@ public class ModuleTabs {
                 categoryMap.put(category, false);
             }
 
-            for (Setting setting : module.settings) {
-                switch (setting.getClass().getSimpleName()) {
-                    case "BooleanSetting" -> settingsMap.put(setting, new ImBoolean(((BooleanSetting) setting).isEnabled()));
-                    case "NumberSetting" -> settingsMap.put(setting, new float[]{(float) ((NumberSetting) setting).getValue()});
-                    case "ModeSetting" -> settingsMap.put(setting, new ImInt(((ModeSetting) setting).index));
-                    case "KeybindSetting" -> settingsMap.put(setting, new ImInt(((KeybindSetting) setting).getKeyCode()));
-                    case "StringSetting" -> settingsMap.put(setting, new ImString(((StringSetting) setting).getString()));
-                    default -> LoggingUtil.logger.warn("Unknown setting type: " + setting.getClass().getSimpleName());
+            for (Setting<?> setting : module.settings) {
+                if (setting.getValue() instanceof Boolean) {
+                    settingsMap.put(setting, new ImBoolean((Boolean) setting.getValue()));
+                } else if (setting.getValue() instanceof Number) {
+                    settingsMap.put(setting, new float[]{((Number) setting.getValue()).floatValue()});
+                } else if (setting.getValue() instanceof Enum) {
+                    settingsMap.put(setting, new ImInt(((Enum<?>) setting.getValue()).ordinal()));
+                } else if (setting.getValue() instanceof String) {
+                    settingsMap.put(setting, new ImString((String) setting.getValue()));
+                } else if (setting.getValue() instanceof Integer && ((Integer) setting.getValue()) >= 0) {
+                    settingsMap.put(setting, new ImInt((Integer) setting.getValue()));
+                } else {
+                    LoggingUtil.logger.warn("Unsupported setting type: " + setting.getValue().getClass().getSimpleName());
                 }
             }
         }
@@ -108,62 +105,74 @@ public class ModuleTabs {
      * @param module The module to render settings for
      */
     private static void renderModuleSettings(Module module) {
-        for (Setting setting : module.settings) {
-            if (module.settings != null) {
-                switch (setting.getClass().getSimpleName()) {
-                    case "BooleanSetting" -> {
-                        ImGui.checkbox(setting.name, (ImBoolean) settingsMap.get(setting));
-                        if (((BooleanSetting) setting).isEnabled() != ((ImBoolean) settingsMap.get(setting)).get()) {
-                            ((BooleanSetting) setting).setEnabled(((ImBoolean) settingsMap.get(setting)).get());
-                        }
-                    }
-                    case "NumberSetting" -> {
-                        ImGui.sliderFloat(setting.name, (float[]) settingsMap.get(setting), (float) ((NumberSetting) setting).getMinimum(),
-                                (float) ((NumberSetting) setting).getMaximum());
-                        float[] temp = (float[]) settingsMap.get(setting);
-                        if (temp[0] != (float) ((NumberSetting) setting).getValue()) {
-                            ((NumberSetting) setting).setValue(temp[0]);
-                        }
-                    }
-                    case "ModeSetting" -> {
-                        String[] temp = ((ModeSetting) setting).modes.toArray(new String[0]);
-                        ImGui.combo(setting.name, (ImInt) settingsMap.get(setting), temp);
-                        if (((ImInt) settingsMap.get(setting)).get() != ((ModeSetting) setting).modes.indexOf(((ModeSetting) setting).getMode())) {
-                            ((ModeSetting) setting).setMode(((ModeSetting) setting).modes.get(((ImInt) settingsMap.get(setting)).get()));
-                        }
-                    }
-                    case "StringSetting" -> {
-                        ImGui.inputText(setting.name, (ImString) settingsMap.get(setting), ImGuiInputTextFlags.CallbackResize);
-                        String temp = ((ImString) settingsMap.get(setting)).get();
-                        if (!temp.equals(((StringSetting) setting).getString())) {
-                            ((StringSetting) setting).setString(temp);
-                        }
-                    }
-                    case "KeybindSetting" -> {
-                        if (binding && activeModule == module) { // Check if the module is active for keybind changes
-                            ImGui.text("Press a key to bind");
-                            for (int i = 0; i < 512; i++) {
-                                if (ImGui.isKeyPressed(i)) {
-                                    if (i == GLFW.GLFW_KEY_ESCAPE || i == GLFW.GLFW_KEY_BACKSPACE || i == GLFW.GLFW_KEY_DELETE) {
-                                        ((KeybindSetting) setting).setKeyCode(-1);
-                                    } else {
-                                        ((KeybindSetting) setting).setKeyCode(i);
-                                    }
-                                    binding = false;
-                                }
+        for (Setting<?> setting : module.settings) {
+            if (setting.equals(module.keyCode)) {
+                final int currentKeyCode = module.getKey();
+                if (binding && activeModule == module) {
+                    ImGui.text("Press a key to bind");
+                    for (int i = 0; i < 512; i++) {
+                        if (ImGui.isKeyPressed(i)) {
+                            if (i == GLFW.GLFW_KEY_ESCAPE || i == GLFW.GLFW_KEY_BACKSPACE || i == GLFW.GLFW_KEY_DELETE) {
+                                setting.setValue(-1);
+                            } else {
+                                setting.setValue(i);
                             }
-                        } else {
-                            String name = ((KeybindSetting) setting).getKeyCode() < 0 ? "NONE"
-                                    : InputUtil.fromKeyCode(((KeybindSetting) setting).getKeyCode(), -1).getLocalizedText().getString();
-                            if (ImGui.button("Bind: " + name)) {
-                                activeModule = module; // Set the active module for keybind changes
-                                binding = true;
-                            }
+                            binding = false;
                         }
                     }
-                    default -> LoggingUtil.logger.warn("Unknown setting type: " + setting.getClass().getSimpleName());
+                } else {
+                    String name = currentKeyCode < 0 ? "NONE"
+                            : InputUtil.fromKeyCode(currentKeyCode, -1).getLocalizedText().getString();
+                    if (ImGui.button("Bind: " + name)) {
+                        activeModule = module;
+                        binding = true;
+                    }
                 }
+                continue;
             }
+
+            // other setting types rendering below
+
+            if (setting.getValue() instanceof Boolean) {
+                ImGui.checkbox(setting.getName(), (ImBoolean) settingsMap.get(setting));
+                if (!setting.getValue().equals(((ImBoolean) settingsMap.get(setting)).get())) {
+                    setting.setValue(((ImBoolean) settingsMap.get(setting)).get());
+                }
+            } else if (setting.getValue() instanceof Number) {
+                ImGui.sliderFloat(
+                        setting.getName(),
+                        (float[]) settingsMap.get(setting),
+                        ((Number) setting.getMinimum()).floatValue(),
+                        ((Number) setting.getMaximum()).floatValue()
+                );
+                if (!setting.getValue().equals(((float[]) settingsMap.get(setting))[0])) {
+                    setting.setValue(((float[]) settingsMap.get(setting))[0]);
+                }
+            } else if (setting.getValue() instanceof Enum) {
+                Enum<?>[] enumConstants = ((Enum<?>) setting.getValue()).getDeclaringClass().getEnumConstants();
+                String[] enumNames = new String[enumConstants.length];
+                for (int i = 0; i < enumConstants.length; i++) {
+                    enumNames[i] = enumConstants[i].name();
+                }
+                ImGui.combo(setting.getName(), (ImInt) settingsMap.get(setting), enumNames);
+                if (((Enum<?>) setting.getValue()).ordinal() != ((ImInt) settingsMap.get(setting)).get()) {
+                    setting.setValue(enumConstants[((ImInt) settingsMap.get(setting)).get()]);
+                }
+            } else if (setting.getValue() instanceof String) {
+                ImGui.inputText(setting.getName(), (ImString) settingsMap.get(setting), ImGuiInputTextFlags.CallbackResize);
+                String temp = ((ImString) settingsMap.get(setting)).get();
+                if (!temp.equals(setting.getValue())) {
+                    setting.setValue(temp);
+                }
+            } else if (setting.getValue() instanceof Integer) {
+                ImGui.inputInt(setting.getName(), (ImInt) settingsMap.get(setting));
+                if (!setting.getValue().equals(((ImInt) settingsMap.get(setting)).get())) {
+                    setting.setValue(((ImInt) settingsMap.get(setting)).get());
+                }
+            } else {
+                LoggingUtil.logger.warn("Unsupported setting type: " + setting.getValue().getClass().getSimpleName());
+            }
+
             if (ImGui.isItemHovered()) {
                 ImGui.setTooltip(setting.getDescription());
             }

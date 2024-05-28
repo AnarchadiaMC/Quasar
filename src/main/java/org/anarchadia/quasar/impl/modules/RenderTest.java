@@ -9,7 +9,7 @@ package org.anarchadia.quasar.impl.modules;
 
 import org.anarchadia.quasar.api.event.events.render.RenderEvent;
 import org.anarchadia.quasar.api.module.Module;
-import org.anarchadia.quasar.api.setting.settings.BooleanSetting;
+import org.anarchadia.quasar.api.setting.Setting;
 import org.anarchadia.quasar.api.util.LoggingUtil;
 import org.anarchadia.quasar.api.util.RenderUtil;
 import net.minecraft.client.render.Camera;
@@ -22,10 +22,10 @@ import team.stiff.pomelo.impl.annotated.handler.annotation.Listener;
 import java.awt.*;
 
 public class RenderTest extends Module {
-    public final BooleanSetting box3D = new BooleanSetting("3DBox", "Draws an 3D box around the entity.", false);
-    public final BooleanSetting boxOutline = new BooleanSetting("OutlineBox", "Draws an outline box around the entity.", false);
-    public final BooleanSetting outline2D = new BooleanSetting("2DOutline", "Draws an 2D outline around the entity.", false);
-    public final BooleanSetting line = new BooleanSetting("Line", "Draws an line from player.", false);
+    public final Setting<Boolean> box3D = new Setting<Boolean>("3DBox", "Draws an 3D box around the entity.", false);
+    public final Setting<Boolean> boxOutline = new Setting<Boolean>("OutlineBox", "Draws an outline box around the entity.", false);
+    public final Setting<Boolean> outline2D = new Setting<Boolean>("2DOutline", "Draws an 2D outline around the entity.", false);
+    public final Setting<Boolean> line = new Setting<Boolean>("Line", "Draws an line from player.", false);
 
 
     public RenderTest() {

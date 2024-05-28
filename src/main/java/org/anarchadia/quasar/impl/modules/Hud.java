@@ -10,18 +10,17 @@ package org.anarchadia.quasar.impl.modules;
 import org.anarchadia.quasar.Quasar;
 import org.anarchadia.quasar.api.event.events.render.RenderInGameHudEvent;
 import org.anarchadia.quasar.api.module.Module;
-import org.anarchadia.quasar.api.setting.settings.BooleanSetting;
-import org.anarchadia.quasar.api.setting.settings.StringSetting;
+import org.anarchadia.quasar.api.setting.Setting;
 import org.anarchadia.quasar.api.util.TPSUtil;
 import org.lwjgl.glfw.GLFW;
 import team.stiff.pomelo.impl.annotated.handler.annotation.Listener;
 
 public class Hud extends Module {
-    public final BooleanSetting watermark = new BooleanSetting("Watermark", "Renders the Quasar watermark.", true);
-    public final StringSetting watermarkText = new StringSetting("Watermark Text", "The text of the watermark.");
-    public final BooleanSetting arraylist = new BooleanSetting("Arraylist", "Renders the Quasar arraylist.", true);
-    public final BooleanSetting ticks = new BooleanSetting("TPS", "Renders the ticks per second.", true);
-    public final BooleanSetting fps = new BooleanSetting("FPS", "Renders the frames per second.", true);
+    public final Setting<Boolean> watermark = new Setting<>("Watermark", "Renders the Quasar watermark.", true);
+    public final Setting<String> watermarkText = new Setting<>("Watermark Text", "The text of the watermark.", "Quasar");
+    public final Setting<Boolean> arraylist = new Setting<>("Arraylist", "Renders the Quasar arraylist.", true);
+    public final Setting<Boolean> ticks = new Setting<>("TPS", "Renders the ticks per second.", true);
+    public final Setting<Boolean> fps = new Setting<>("FPS", "Renders the frames per second.", true);
 
     public Hud() {
         super("Hud", "Renders the Quasar hud.", GLFW.GLFW_KEY_UNKNOWN, Category.RENDER);
