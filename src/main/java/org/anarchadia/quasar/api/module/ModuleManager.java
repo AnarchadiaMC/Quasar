@@ -18,6 +18,7 @@ import java.util.List;
 
 public class ModuleManager {
     public final ArrayList<Module> modules;
+    private Module currentlyBindingModule = null;
 
     public ModuleManager() {
         modules = new ArrayList<>();
@@ -83,6 +84,26 @@ public class ModuleManager {
 
     public void onKeyPress(KeyEvent event) {
         if (InputUtil.isKeyPressed(Quasar.mc.getWindow().getHandle(), GLFW.GLFW_KEY_F3)) return;
+
+        if (currentlyBindingModule != null) {
+            if (event.getKey() == GLFW.GLFW_KEY_ESCAPE) {
+                // Cancel binding
+                currentlyBindingModule = null;
+            } else {
+                currentlyBindingModule.setKey(event.getKey());
+                currentlyBindingModule = null;
+            }
+            return;
+        }
+
         modules.stream().filter(m -> m.getKey() == event.getKey()).forEach(Module::toggle);
+    }
+
+    public Module getCurrentlyBindingModule() {
+        return currentlyBindingModule;
+    }
+
+    public void setCurrentlyBindingModule(Module module) {
+        this.currentlyBindingModule = module;
     }
 }

@@ -98,6 +98,7 @@ public class QuasarGUI extends Screen {
     @Override
     public void close() {
         QuasarGUI.isOpen = false;
+        Quasar.getInstance().getModuleManager().setCurrentlyBindingModule(null);
         mc.setScreen(null);
         implGl3.dispose();
         implGlfw.dispose();

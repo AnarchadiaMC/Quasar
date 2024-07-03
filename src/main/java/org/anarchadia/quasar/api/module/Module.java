@@ -5,6 +5,7 @@ import org.anarchadia.quasar.Quasar;
 import org.anarchadia.quasar.api.setting.Setting;
 import org.anarchadia.quasar.api.util.LoggingUtil;
 import net.minecraft.util.Formatting;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,6 +22,7 @@ public abstract class Module {
     public Category category;
     public boolean enabled;
     public List<Setting<?>> settings = new ArrayList<>();
+    private boolean waitingForKey = false;
 
     /**
      * Module constructor.
@@ -40,6 +42,26 @@ public abstract class Module {
 
         /* Add default settings */
         addSettings(keyCode);
+    }
+
+    public void startBinding() {
+        Quasar.getInstance().getModuleManager().setCurrentlyBindingModule(this);
+    }
+
+    public boolean isBinding() {
+        return Quasar.getInstance().getModuleManager().getCurrentlyBindingModule() == this;
+    }
+
+    public void handleKeyPress(int key) {
+        if (waitingForKey) {
+            if (key == GLFW.GLFW_KEY_ESCAPE) {
+                // Cancel binding
+                waitingForKey = false;
+            } else {
+                this.keyCode.setValue(key);
+                waitingForKey = false;
+            }
+        }
     }
 
     /**
@@ -170,8 +192,9 @@ public abstract class Module {
      *
      * @param key the key code to set.
      */
-    public void setKey(int key) {
+    public synchronized void setKey(int key) {
         this.keyCode.setValue(key);
+        Quasar.getInstance().getConfigManager().save();
     }
 
     /**

@@ -21,8 +21,6 @@ public class ModuleTabs {
     private static final HashMap<Setting<?>, Object> settingsMap = new HashMap<>();
     private static final HashMap<Module.Category, Boolean> categoryMap = new HashMap<>();
     private static final HashMap<Module, Boolean> showSettingsMap = new HashMap<>();
-    private static boolean binding;
-    private static Module activeModule;
 
     /**
      * Renders the module tabs.
@@ -107,25 +105,13 @@ public class ModuleTabs {
     private static void renderModuleSettings(Module module) {
         for (Setting<?> setting : module.settings) {
             if (setting.equals(module.keyCode)) {
-                final int currentKeyCode = module.getKey();
-                if (binding && activeModule == module) {
-                    ImGui.text("Press a key to bind");
-                    for (int i = 0; i < 512; i++) {
-                        if (ImGui.isKeyPressed(i)) {
-                            if (i == GLFW.GLFW_KEY_ESCAPE || i == GLFW.GLFW_KEY_BACKSPACE || i == GLFW.GLFW_KEY_DELETE) {
-                                setting.setValue(-1);
-                            } else {
-                                setting.setValue(i);
-                            }
-                            binding = false;
-                        }
-                    }
+                if (module.isBinding()) {
+                    ImGui.text("Press a key to bind... (ESC to cancel)");
                 } else {
-                    String name = currentKeyCode < 0 ? "NONE"
-                            : InputUtil.fromKeyCode(currentKeyCode, -1).getLocalizedText().getString();
+                    String name = module.getKey() < 0 ? "NONE"
+                            : InputUtil.fromKeyCode(module.getKey(), -1).getLocalizedText().getString();
                     if (ImGui.button("Bind: " + name)) {
-                        activeModule = module;
-                        binding = true;
+                        module.startBinding();
                     }
                 }
                 continue;
