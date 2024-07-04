@@ -20,83 +20,62 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.nio.channels.FileLock;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantLock;
 
-/**
- * ConfigManager handles saving and loading of module settings to and from an XML file.
- */
 public class ConfigManager {
     private final File file;
     private final File mainDirectory;
-    private int tickCounter = 0;
-    private static final int SAVE_INTERVAL = 600; // Number of ticks between saves (600 ticks = 30 seconds)
+    private final AtomicInteger tickCounter = new AtomicInteger(0);
+    private static final int SAVE_INTERVAL = 600;
+    private static final int RETRY_INTERVAL = 5;
+    private final ReentrantLock configLock = new ReentrantLock();
 
-    /**
-     * Constructs a ConfigManager instance and ensures the configuration file exists.
-     */
     public ConfigManager() {
         mainDirectory = new File(MinecraftClient.getInstance().runDirectory, "quasar");
-
-        if (!mainDirectory.exists()) {
-            if (mainDirectory.mkdir()) {
-                LoggingUtil.info("Created main directory for config.");
-            } else {
-                LoggingUtil.logger.error("Failed to create main directory for config!");
-            }
+        if (!mainDirectory.exists() && !mainDirectory.mkdir()) {
+            LoggingUtil.logger.error("Failed to create main directory for config!");
         }
 
         file = new File(mainDirectory, "config.xml");
-
-        try {
-            if (!file.exists()) {
-                if (file.createNewFile()) {
-                    LoggingUtil.info("Created configuration file.");
-                } else {
+        if (!file.exists()) {
+            try {
+                if (!file.createNewFile()) {
                     LoggingUtil.logger.error("Failed to create configuration file!");
                 }
+            } catch (Exception e) {
+                LoggingUtil.logger.error("Error creating configuration file", e);
             }
-        } catch (Exception e) {
-            LoggingUtil.logger.error(e.getMessage(), e);
         }
     }
 
-    /**
-     * Handles the tick event to save configuration periodically.
-     *
-     * @param event The tick event.
-     */
     @Listener
     public void onTick(TickEvent event) {
-        tickCounter++;
-
-        if (tickCounter >= SAVE_INTERVAL) {
+        if (tickCounter.incrementAndGet() >= SAVE_INTERVAL) {
             save();
-            tickCounter = 0;
+            tickCounter.set(0);
         }
     }
 
-    /**
-     * Gets the configuration file.
-     *
-     * @return the configuration file.
-     */
     public File getFile() {
         return file;
     }
 
-    /**
-     * Gets the main directory where configurations are stored.
-     *
-     * @return the main directory.
-     */
     public File getMainDirectory() {
         return mainDirectory;
     }
 
-    /**
-     * Saves the current settings of all modules to the XML configuration file.
-     */
     public void save() {
-        try (FileOutputStream fos = new FileOutputStream(file)) {
+        configLock.lock();
+        try (FileOutputStream fos = new FileOutputStream(file);
+             FileLock lock = fos.getChannel().tryLock()) {
+
+            if (lock == null) {
+                LoggingUtil.logger.warn("Could not acquire lock for saving config. Retrying later.");
+                return;
+            }
+
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
             Document doc = dBuilder.newDocument();
@@ -116,7 +95,7 @@ public class ConfigManager {
                 for (Setting<?> setting : module.getSettings()) {
                     Element settingElement = doc.createElement("setting");
                     settingElement.setAttribute("name", setting.getName());
-                    settingElement.setTextContent(setting.getValue().toString());
+                    settingElement.setTextContent(String.valueOf(setting.getValue()));
                     moduleElement.appendChild(settingElement);
                 }
 
@@ -132,25 +111,25 @@ public class ConfigManager {
             transformer.transform(source, result);
 
         } catch (Exception e) {
-            LoggingUtil.logger.error("Error while saving config!", e);
+            LoggingUtil.logger.error("Error while saving config", e);
+        } finally {
+            configLock.unlock();
         }
     }
 
-    /**
-     * Loads the settings from the XML configuration file and applies them to the modules.
-     */
     public void load() {
+        configLock.lock();
         try (FileInputStream fis = new FileInputStream(file)) {
             LoggingUtil.logger.info("Loading config...");
 
-            // Check if file is empty
             if (file.length() == 0) {
-                LoggingUtil.logger.warn("Config file is empty or corrupted. Automatically generating a new one.");
-                save(); // Save a default configuration
+                LoggingUtil.logger.warn("Config file is empty. Generating a new one.");
+                save();
                 return;
             }
 
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            dbFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
             Document doc = dBuilder.parse(fis);
             doc.getDocumentElement().normalize();
@@ -165,54 +144,61 @@ public class ConfigManager {
                 if (module != null) {
                     var settingNodes = moduleElement.getElementsByTagName("setting");
                     for (int j = 0; j < settingNodes.getLength(); j++) {
-                        Element settingElement = (Element) settingNodes.item(j);
-                        String settingName = settingElement.getAttribute("name");
-                        String settingValue = settingElement.getTextContent();
+                        try {
+                            Element settingElement = (Element) settingNodes.item(j);
+                            String settingName = settingElement.getAttribute("name");
+                            String settingValue = settingElement.getTextContent();
 
-                        if ("enabled".equals(settingName)) {
-                            module.setEnabled(Boolean.parseBoolean(settingValue));
-                        } else {
-                            Setting<?> setting = module.getSettingByName(settingName);
-                            if (setting != null) {
-                                setSettingValue(setting, settingValue);
+                            if ("enabled".equals(settingName)) {
+                                module.setEnabled(Boolean.parseBoolean(settingValue));
+                            } else {
+                                Setting<?> setting = module.getSettingByName(settingName);
+                                if (setting != null) {
+                                    setSettingValue(setting, settingValue);
+                                } else {
+                                    LoggingUtil.logger.warn("Setting not found: " + settingName + " for module: " + moduleName);
+                                }
                             }
+                        } catch (Exception e) {
+                            LoggingUtil.logger.error("Error loading setting for module: " + moduleName, e);
                         }
                     }
+                } else {
+                    LoggingUtil.logger.warn("Module not found: " + moduleName);
                 }
             }
         } catch (Exception e) {
-            LoggingUtil.logger.error("Error while loading config!", e);
+            LoggingUtil.logger.error("Error while loading config", e);
+        } finally {
+            configLock.unlock();
         }
     }
 
-    /**
-     * Sets the value of the specified setting.
-     *
-     * @param setting the setting whose value to set.
-     * @param value   the value to set for the setting.
-     */
     private <T> void setSettingValue(Setting<T> setting, String value) {
         try {
             T currentValue = setting.getValue();
             if (currentValue instanceof Boolean) {
-                setting.setValue(Boolean.valueOf(value));
+                setting.setValue((T) Boolean.valueOf(value));
             } else if (currentValue instanceof Double) {
-                setting.setValue(Double.valueOf(value));
+                setting.setValue((T) Double.valueOf(value));
             } else if (currentValue instanceof Float) {
-                setting.setValue(Float.valueOf(value));
+                setting.setValue((T) Float.valueOf(value));
             } else if (currentValue instanceof Integer) {
-                setting.setValue(Integer.valueOf(value));
+                setting.setValue((T) Integer.valueOf(value));
             } else if (currentValue instanceof Long) {
-                setting.setValue(Long.valueOf(value));
+                setting.setValue((T) Long.valueOf(value));
             } else if (currentValue instanceof Short) {
-                setting.setValue(Short.valueOf(value));
+                setting.setValue((T) Short.valueOf(value));
             } else if (currentValue instanceof Byte) {
-                setting.setValue(Byte.valueOf(value));
+                setting.setValue((T) Byte.valueOf(value));
             } else if (currentValue instanceof String) {
-                setting.setValue(value);
+                setting.setValue((T) value);
             } else if (currentValue instanceof Enum<?>) {
-                @SuppressWarnings("unchecked") Class<Enum> enumClass = (Class<Enum>) currentValue.getClass();
-                setting.setValue(Enum.valueOf(enumClass, value));
+                @SuppressWarnings("unchecked")
+                Class<Enum> enumClass = (Class<Enum>) currentValue.getClass();
+                setting.setValue((T) Enum.valueOf(enumClass, value));
+            } else {
+                LoggingUtil.logger.warn("Unknown setting type: " + setting.getName());
             }
         } catch (Exception e) {
             LoggingUtil.logger.error("Failed to set setting value: " + setting.getName(), e);

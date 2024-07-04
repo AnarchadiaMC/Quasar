@@ -123,12 +123,13 @@ public class ModuleTabs {
         }
 
         // Render key bind setting last
-        if (keyBindSetting != null) {
+        if (keyBindSetting != null && keyBindSetting.getValue() instanceof Integer) {
+            Setting<Integer> keyCodeSetting = (Setting<Integer>) keyBindSetting;
             if (module.isBinding()) {
                 ImGui.text("Press a key to bind... (ESC to cancel)");
             } else {
-                String name = module.getKey() < 0 ? "NONE"
-                        : InputUtil.fromKeyCode(module.getKey(), -1).getLocalizedText().getString();
+                int keyCode = keyCodeSetting.getValue();
+                String name = keyCode < 0 ? "NONE" : InputUtil.fromKeyCode(keyCode, -1).getLocalizedText().getString();
                 if (ImGui.button("Bind: " + name)) {
                     module.startBinding();
                 }
@@ -136,72 +137,101 @@ public class ModuleTabs {
 
             // Check if the key has changed
             int currentKey = module.getKey();
-            if (currentKey != ((Setting<Integer>) keyBindSetting).getValue()) {
-                keyBindSetting.setValue(currentKey);
+            if (currentKey != keyCodeSetting.getValue()) {
+                keyCodeSetting.setValue(currentKey);
                 Quasar.getInstance().getConfigManager().save();
             }
         }
     }
 
     private static void renderSetting(Setting<?> setting) {
+        if (setting == null || setting.getValue() == null) {
+            LoggingUtil.logger.warn("Null setting or setting value encountered");
+            return;
+        }
+
         boolean valueChanged = false;
 
-        if (setting.getValue() instanceof Boolean) {
-            ImBoolean imBool = (ImBoolean) settingsMap.get(setting);
-            ImGui.checkbox(setting.getName(), imBool);
-            if (!setting.getValue().equals(imBool.get())) {
-                setting.setValue(imBool.get());
-                valueChanged = true;
+        try {
+            if (setting.getValue() instanceof Boolean) {
+                ImBoolean imBool = (ImBoolean) settingsMap.get(setting);
+                if (imBool == null) {
+                    imBool = new ImBoolean((Boolean) setting.getValue());
+                    settingsMap.put(setting, imBool);
+                }
+                ImGui.checkbox(setting.getName(), imBool);
+                if (!setting.getValue().equals(imBool.get())) {
+                    setting.setValue(imBool.get());
+                    valueChanged = true;
+                }
+            } else if (setting.getValue() instanceof Number) {
+                float[] value = (float[]) settingsMap.get(setting);
+                if (value == null) {
+                    value = new float[]{((Number) setting.getValue()).floatValue()};
+                    settingsMap.put(setting, value);
+                }
+                ImGui.sliderFloat(
+                        setting.getName(),
+                        value,
+                        ((Number) setting.getMinimum()).floatValue(),
+                        ((Number) setting.getMaximum()).floatValue()
+                );
+                if (!setting.getValue().equals(value[0])) {
+                    setting.setValue(value[0]);
+                    valueChanged = true;
+                }
+            } else if (setting.getValue() instanceof Enum) {
+                ImInt imInt = (ImInt) settingsMap.get(setting);
+                if (imInt == null) {
+                    imInt = new ImInt(((Enum<?>) setting.getValue()).ordinal());
+                    settingsMap.put(setting, imInt);
+                }
+                Enum<?>[] enumConstants = ((Enum<?>) setting.getValue()).getDeclaringClass().getEnumConstants();
+                String[] enumNames = new String[enumConstants.length];
+                for (int i = 0; i < enumConstants.length; i++) {
+                    enumNames[i] = enumConstants[i].name();
+                }
+                ImGui.combo(setting.getName(), imInt, enumNames);
+                if (((Enum<?>) setting.getValue()).ordinal() != imInt.get()) {
+                    setting.setValue(enumConstants[imInt.get()]);
+                    valueChanged = true;
+                }
+            } else if (setting.getValue() instanceof String) {
+                ImString imString = (ImString) settingsMap.get(setting);
+                if (imString == null) {
+                    imString = new ImString((String) setting.getValue());
+                    settingsMap.put(setting, imString);
+                }
+                ImGui.inputText(setting.getName(), imString, ImGuiInputTextFlags.CallbackResize);
+                String temp = imString.get();
+                if (!temp.equals(setting.getValue())) {
+                    setting.setValue(temp);
+                    valueChanged = true;
+                }
+            } else if (setting.getValue() instanceof Integer) {
+                ImInt imInt = (ImInt) settingsMap.get(setting);
+                if (imInt == null) {
+                    imInt = new ImInt((Integer) setting.getValue());
+                    settingsMap.put(setting, imInt);
+                }
+                ImGui.inputInt(setting.getName(), imInt);
+                if (!setting.getValue().equals(imInt.get())) {
+                    setting.setValue(imInt.get());
+                    valueChanged = true;
+                }
+            } else {
+                LoggingUtil.logger.warn("Unsupported setting type: " + setting.getValue().getClass().getSimpleName());
             }
-        } else if (setting.getValue() instanceof Number) {
-            float[] value = (float[]) settingsMap.get(setting);
-            ImGui.sliderFloat(
-                    setting.getName(),
-                    value,
-                    ((Number) setting.getMinimum()).floatValue(),
-                    ((Number) setting.getMaximum()).floatValue()
-            );
-            if (!setting.getValue().equals(value[0])) {
-                setting.setValue(value[0]);
-                valueChanged = true;
-            }
-        } else if (setting.getValue() instanceof Enum) {
-            ImInt imInt = (ImInt) settingsMap.get(setting);
-            Enum<?>[] enumConstants = ((Enum<?>) setting.getValue()).getDeclaringClass().getEnumConstants();
-            String[] enumNames = new String[enumConstants.length];
-            for (int i = 0; i < enumConstants.length; i++) {
-                enumNames[i] = enumConstants[i].name();
-            }
-            ImGui.combo(setting.getName(), imInt, enumNames);
-            if (((Enum<?>) setting.getValue()).ordinal() != imInt.get()) {
-                setting.setValue(enumConstants[imInt.get()]);
-                valueChanged = true;
-            }
-        } else if (setting.getValue() instanceof String) {
-            ImString imString = (ImString) settingsMap.get(setting);
-            ImGui.inputText(setting.getName(), imString, ImGuiInputTextFlags.CallbackResize);
-            String temp = imString.get();
-            if (!temp.equals(setting.getValue())) {
-                setting.setValue(temp);
-                valueChanged = true;
-            }
-        } else if (setting.getValue() instanceof Integer) {
-            ImInt imInt = (ImInt) settingsMap.get(setting);
-            ImGui.inputInt(setting.getName(), imInt);
-            if (!setting.getValue().equals(imInt.get())) {
-                setting.setValue(imInt.get());
-                valueChanged = true;
-            }
-        } else {
-            LoggingUtil.logger.warn("Unsupported setting type: " + setting.getValue().getClass().getSimpleName());
-        }
 
-        if (ImGui.isItemHovered()) {
-            ImGui.setTooltip(setting.getDescription());
-        }
+            if (ImGui.isItemHovered()) {
+                ImGui.setTooltip(setting.getDescription());
+            }
 
-        if (valueChanged) {
-            Quasar.getInstance().getConfigManager().save();
+            if (valueChanged) {
+                Quasar.getInstance().getConfigManager().save();
+            }
+        } catch (Exception e) {
+            LoggingUtil.logger.error("Error rendering setting: " + setting.getName(), e);
         }
     }
 }

@@ -1,22 +1,12 @@
-/*
- * Copyright (c) 2024. Vili and contributors.
- * This source code is subject to the terms of the GNU General Public
- * License, version 3. If a copy of the GPL was not distributed with this
- *  file, You can obtain one at: https://www.gnu.org/licenses/gpl-3.0.txt
- */
-
 package org.anarchadia.quasar.api.module;
 
 import org.anarchadia.quasar.Quasar;
 import org.anarchadia.quasar.api.event.events.client.KeyEvent;
 import net.minecraft.client.util.InputUtil;
-import org.anarchadia.quasar.impl.modules.Movement.Fly;
-import org.anarchadia.quasar.impl.modules.Movement.Sprint;
-import org.anarchadia.quasar.impl.modules.Render.GUI;
-import org.anarchadia.quasar.impl.modules.Render.Hud;
-import org.anarchadia.quasar.impl.modules.Render.RenderTest;
+import org.anarchadia.quasar.api.util.ReflectionUtil;
 import org.lwjgl.glfw.GLFW;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,13 +16,23 @@ public class ModuleManager {
 
     public ModuleManager() {
         modules = new ArrayList<>();
+        loadModules();
+    }
 
-        /* Add modules here */
-        modules.add(new Fly());
-        modules.add(new GUI());
-        modules.add(new Hud());
-        modules.add(new RenderTest());
-        modules.add(new Sprint());
+    /**
+     * Load all modules using reflection.
+     */
+    private void loadModules() {
+        List<Class<?>> moduleClasses = ReflectionUtil.find("org.anarchadia.quasar.impl.modules");
+        for (Class<?> moduleClass : moduleClasses) {
+            if (Module.class.isAssignableFrom(moduleClass)) {
+                try {
+                    modules.add((Module) moduleClass.getDeclaredConstructor().newInstance());
+                } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                    e.printStackTrace(); // Handle the exception appropriately
+                }
+            }
+        }
     }
 
     /**
