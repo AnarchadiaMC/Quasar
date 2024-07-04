@@ -5,7 +5,7 @@
  *  file, You can obtain one at: https://www.gnu.org/licenses/gpl-3.0.txt
  */
 
-package org.anarchadia.quasar.impl.modules;
+package org.anarchadia.quasar.impl.modules.Render;
 
 import org.anarchadia.quasar.api.event.events.render.RenderEvent;
 import org.anarchadia.quasar.api.module.Module;

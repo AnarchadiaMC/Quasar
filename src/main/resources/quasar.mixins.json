@@ -5,15 +5,15 @@
   "compatibilityLevel": "JAVA_17",
   "mixins": [],
   "client": [
-    "MinecraftClientMixin",
-    "GameRendererMixin",
-    "WorldRendererMixin",
-    "ClientConnectionMixin",
-    "ClientPlayerEntityMixin",
-    "InGameHudMixin",
-    "KeyboardMixin",
-    "ScreenMixin",
-    "TelemetryManagerMixin"
+    "client.MinecraftClientMixin",
+    "render.GameRendererMixin",
+    "client.WorldRendererMixin",
+    "client.ClientConnectionMixin",
+    "client.ClientPlayerEntityMixin",
+    "render.InGameHudMixin",
+    "client.KeyboardMixin",
+    "render.ScreenMixin",
+    "client.TelemetryManagerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -1,4 +1,4 @@
-package org.anarchadia.quasar.impl.mixins;
+package org.anarchadia.quasar.impl.mixins.render;
 
 import org.anarchadia.quasar.Quasar;
 import org.anarchadia.quasar.api.event.events.render.RenderInGameHudEvent;

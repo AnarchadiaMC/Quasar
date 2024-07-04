@@ -5,7 +5,7 @@
  *  file, You can obtain one at: https://www.gnu.org/licenses/gpl-3.0.txt
  */
 
-package org.anarchadia.quasar.impl.mixins;
+package org.anarchadia.quasar.impl.mixins.client;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import org.anarchadia.quasar.Quasar;

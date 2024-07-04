@@ -1,4 +1,4 @@
-package org.anarchadia.quasar.impl.mixins;
+package org.anarchadia.quasar.impl.mixins.client;
 
 import net.minecraft.client.session.telemetry.TelemetryManager;
 import net.minecraft.client.session.telemetry.TelemetrySender;

@@ -5,7 +5,7 @@
  *  file, You can obtain one at: https://www.gnu.org/licenses/gpl-3.0.txt
  */
 
-package org.anarchadia.quasar.impl.modules;
+package org.anarchadia.quasar.impl.modules.Movement;
 
 import org.anarchadia.quasar.api.event.events.client.TickEvent;
 import org.anarchadia.quasar.api.module.Module;

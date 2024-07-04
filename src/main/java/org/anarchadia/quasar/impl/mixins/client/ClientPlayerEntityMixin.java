@@ -5,22 +5,24 @@
  *  file, You can obtain one at: https://www.gnu.org/licenses/gpl-3.0.txt
  */
 
-package org.anarchadia.quasar.impl.mixins;
+package org.anarchadia.quasar.impl.mixins.client;
 
 import org.anarchadia.quasar.Quasar;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.RunArgs;
+import org.anarchadia.quasar.api.event.events.client.TickEvent;
+import net.minecraft.client.network.ClientPlayerEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(MinecraftClient.class)
-public class MinecraftClientMixin {
+@Mixin(ClientPlayerEntity.class)
+public class ClientPlayerEntityMixin {
 
-    @Inject(method = "<init>", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/client/MinecraftClient;setOverlay(Lnet/minecraft/client/gui/screen/Overlay;)V", shift = At.Shift.BEFORE))
-    private void init(RunArgs args, CallbackInfo ci) {
-        Quasar.getInstance().postInitialize();
+    @Inject(method = "tick", at = @At("HEAD"))
+    private void tick(CallbackInfo ci) {
+        if (Quasar.mc.player != null && Quasar.mc.world != null) {
+            TickEvent event = new TickEvent();
+            Quasar.getInstance().getEventManager().dispatchEvent(event);
+        }
     }
 }

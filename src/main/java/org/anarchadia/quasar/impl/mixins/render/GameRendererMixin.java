@@ -1,4 +1,4 @@
-package org.anarchadia.quasar.impl.mixins;
+package org.anarchadia.quasar.impl.mixins.render;
 
 import org.anarchadia.quasar.impl.gui.QuasarGUI;
 import net.minecraft.client.render.GameRenderer;

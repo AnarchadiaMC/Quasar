@@ -9,8 +9,12 @@ package org.anarchadia.quasar.api.module;
 
 import org.anarchadia.quasar.Quasar;
 import org.anarchadia.quasar.api.event.events.client.KeyEvent;
-import org.anarchadia.quasar.impl.modules.*;
 import net.minecraft.client.util.InputUtil;
+import org.anarchadia.quasar.impl.modules.Movement.Fly;
+import org.anarchadia.quasar.impl.modules.Movement.Sprint;
+import org.anarchadia.quasar.impl.modules.Render.GUI;
+import org.anarchadia.quasar.impl.modules.Render.Hud;
+import org.anarchadia.quasar.impl.modules.Render.RenderTest;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;

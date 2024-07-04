@@ -16,6 +16,7 @@ import org.anarchadia.quasar.api.module.ModuleManager;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.minecraft.client.MinecraftClient;
+import org.anarchadia.quasar.impl.mixins.client.MinecraftClientMixin;
 import team.stiff.pomelo.impl.annotated.AnnotatedEventManager;
 
 /**
@@ -71,7 +72,7 @@ public class Quasar implements ModInitializer {
     /**
      * Called when Minecraft has finished loading.
      *
-     * @see org.anarchadia.quasar.impl.mixins.MinecraftClientMixin
+     * @see MinecraftClientMixin
      */
     public void postInitialize() {
         getEventManager().addEventListener(TPSUtil.INSTANCE);
