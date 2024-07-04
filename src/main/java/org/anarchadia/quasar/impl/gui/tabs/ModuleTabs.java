@@ -119,11 +119,13 @@ public class ModuleTabs {
 
         // Render other settings
         for (Setting<?> setting : otherSettings) {
-            renderSetting(setting);
+            if (setting.isVisible()) {
+                renderSetting(setting);
+            }
         }
 
         // Render key bind setting last
-        if (keyBindSetting != null && keyBindSetting.getValue() instanceof Integer) {
+        if (keyBindSetting != null && keyBindSetting.getValue() instanceof Integer && keyBindSetting.isVisible()) {
             Setting<Integer> keyCodeSetting = (Setting<Integer>) keyBindSetting;
             if (module.isBinding()) {
                 ImGui.text("Press a key to bind... (ESC to cancel)");
@@ -151,15 +153,20 @@ public class ModuleTabs {
         }
 
         boolean valueChanged = false;
-
         try {
+            String uniqueId = "##" + setting.getName();
+
             if (setting.getValue() instanceof Boolean) {
                 ImBoolean imBool = (ImBoolean) settingsMap.get(setting);
                 if (imBool == null) {
                     imBool = new ImBoolean((Boolean) setting.getValue());
                     settingsMap.put(setting, imBool);
                 }
-                ImGui.checkbox(setting.getName(), imBool);
+
+                ImGui.checkbox(uniqueId, imBool);
+                ImGui.sameLine();
+                ImGui.text(setting.getName());
+
                 if (!setting.getValue().equals(imBool.get())) {
                     setting.setValue(imBool.get());
                     valueChanged = true;
@@ -170,12 +177,7 @@ public class ModuleTabs {
                     value = new float[]{((Number) setting.getValue()).floatValue()};
                     settingsMap.put(setting, value);
                 }
-                ImGui.sliderFloat(
-                        setting.getName(),
-                        value,
-                        ((Number) setting.getMinimum()).floatValue(),
-                        ((Number) setting.getMaximum()).floatValue()
-                );
+                ImGui.sliderFloat(uniqueId, value, ((Number) setting.getMinimum()).floatValue(), ((Number) setting.getMaximum()).floatValue());
                 if (!setting.getValue().equals(value[0])) {
                     setting.setValue(value[0]);
                     valueChanged = true;
@@ -186,15 +188,20 @@ public class ModuleTabs {
                     imInt = new ImInt(((Enum<?>) setting.getValue()).ordinal());
                     settingsMap.put(setting, imInt);
                 }
+
                 Enum<?>[] enumConstants = ((Enum<?>) setting.getValue()).getDeclaringClass().getEnumConstants();
                 String[] enumNames = new String[enumConstants.length];
                 for (int i = 0; i < enumConstants.length; i++) {
                     enumNames[i] = enumConstants[i].name();
                 }
-                ImGui.combo(setting.getName(), imInt, enumNames);
-                if (((Enum<?>) setting.getValue()).ordinal() != imInt.get()) {
-                    setting.setValue(enumConstants[imInt.get()]);
-                    valueChanged = true;
+
+                int currentOrdinal = imInt.get();
+                if (ImGui.combo(uniqueId, imInt, enumNames)) {
+                    if (currentOrdinal != imInt.get()) {
+                        Enum<?> newValue = enumConstants[imInt.get()];
+                        setting.setValue(newValue);
+                        valueChanged = true;
+                    }
                 }
             } else if (setting.getValue() instanceof String) {
                 ImString imString = (ImString) settingsMap.get(setting);
@@ -202,7 +209,7 @@ public class ModuleTabs {
                     imString = new ImString((String) setting.getValue());
                     settingsMap.put(setting, imString);
                 }
-                ImGui.inputText(setting.getName(), imString, ImGuiInputTextFlags.CallbackResize);
+                ImGui.inputText(uniqueId, imString, ImGuiInputTextFlags.CallbackResize);
                 String temp = imString.get();
                 if (!temp.equals(setting.getValue())) {
                     setting.setValue(temp);
@@ -214,7 +221,7 @@ public class ModuleTabs {
                     imInt = new ImInt((Integer) setting.getValue());
                     settingsMap.put(setting, imInt);
                 }
-                ImGui.inputInt(setting.getName(), imInt);
+                ImGui.inputInt(uniqueId, imInt);
                 if (!setting.getValue().equals(imInt.get())) {
                     setting.setValue(imInt.get());
                     valueChanged = true;
@@ -234,4 +241,5 @@ public class ModuleTabs {
             LoggingUtil.logger.error("Error rendering setting: " + setting.getName(), e);
         }
     }
+
 }

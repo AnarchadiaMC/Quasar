@@ -1,9 +1,17 @@
 package org.anarchadia.quasar.impl.modules.Movement;
 
+import org.anarchadia.quasar.api.event.events.network.PacketSendEvent;
 import org.anarchadia.quasar.api.module.Module;
 import org.anarchadia.quasar.api.setting.Setting;
+import team.stiff.pomelo.impl.annotated.handler.annotation.Listener;
 
 public class ElytraFlight extends Module {
+
+    public final Setting<Mode> flightMode = new Setting<>(
+            "Mode",
+            "Specify which Elytra Flight mode you'd like to use",
+            Mode.Packet
+    );
 
     public final Setting<Float> initialSpeed = new Setting<>(
             "Starting Speed",
@@ -12,7 +20,7 @@ public class ElytraFlight extends Module {
             0.1f,
             10.0f,
             0.1f
-    );
+    ).setVisibilityCondition(ret -> flightMode.getValue().equals(Mode.Packet));
 
     public final Setting<Float> incrementalSpeed = new Setting<>(
             "Incremental Speed",
@@ -21,7 +29,7 @@ public class ElytraFlight extends Module {
             0.1f,
             10.0f,
             0.1f
-    );
+    ).setVisibilityCondition(ret -> flightMode.getValue().equals(Mode.Packet));
 
     public final Setting<Float> maximumSpeed = new Setting<>(
             "Maximum Speed",
@@ -30,7 +38,7 @@ public class ElytraFlight extends Module {
             1f,
             10.0f,
             0.25f
-    );
+    ).setVisibilityCondition(ret -> flightMode.getValue().equals(Mode.Packet));
 
     public final Setting<Integer> incrementalTicks = new Setting<>(
             "Incremental Ticks",
@@ -39,7 +47,7 @@ public class ElytraFlight extends Module {
             1,
             20,
             1
-    );
+    ).setVisibilityCondition(ret -> flightMode.getValue().equals(Mode.Packet));
 
     public final Setting<Float> timerSpeed = new Setting<>(
             "Timer Speed",
@@ -62,5 +70,15 @@ public class ElytraFlight extends Module {
         );
     }
 
+    @Listener
+    public void onPacketSend(PacketSendEvent event) {
+        switch (event.getStage()) {
 
+        }
+    }
+
+    public enum Mode {
+        Packet,
+        Vanilla
+    }
 }

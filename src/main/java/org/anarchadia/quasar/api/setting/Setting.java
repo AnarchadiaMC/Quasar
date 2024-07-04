@@ -1,5 +1,7 @@
 package org.anarchadia.quasar.api.setting;
 
+import java.util.function.Predicate;
+
 public class Setting<T> {
     private final String name;
     private final String description;
@@ -7,6 +9,7 @@ public class Setting<T> {
     private T minimum;
     private T maximum;
     private T increment;
+    private Predicate<Setting<?>> visibilityCondition;
 
     public Setting(String name, String description, T value) {
         this.name = name;
@@ -27,6 +30,15 @@ public class Setting<T> {
         return value;
     }
 
+    public Setting<T> setVisibilityCondition(Predicate<Setting<?>> condition) {
+        this.visibilityCondition = condition;
+        return this; // Return this to allow method chaining
+    }
+
+    public boolean isVisible() {
+        return visibilityCondition == null || visibilityCondition.test(this);
+    }
+
     public void setValue(Object newValue) {
         if (value instanceof Boolean) {
             this.value = (T) Boolean.valueOf(newValue instanceof Boolean ? (Boolean) newValue : Boolean.parseBoolean(newValue.toString()));
@@ -35,7 +47,8 @@ public class Setting<T> {
             this.value = (T) createNumber(doubleValue, (Number) value);
         } else if (value instanceof Enum) {
             if (newValue instanceof String) {
-                this.value = (T) Enum.valueOf((Class<? extends Enum>) value.getClass(), (String) newValue);
+                // Handle casting to correct enum type
+                this.value = (T) Enum.valueOf(((Enum<?>) value).getDeclaringClass(), (String) newValue);
             } else if (newValue instanceof Integer) {
                 int ordinal = (Integer) newValue;
                 Enum<?>[] enumConstants = ((Enum<?>) value).getDeclaringClass().getEnumConstants();
@@ -44,6 +57,8 @@ public class Setting<T> {
                 } else {
                     throw new IllegalArgumentException("Invalid ordinal value");
                 }
+            } else if (newValue instanceof Enum<?>) {
+                this.value = (T) newValue;
             } else {
                 throw new ClassCastException("Cannot cast " + newValue + " to " + value.getClass().getSimpleName());
             }
@@ -53,6 +68,7 @@ public class Setting<T> {
             throw new ClassCastException("Cannot cast " + newValue + " to " + value.getClass().getSimpleName());
         }
     }
+
 
     public int getInt() {
         if (value instanceof Number) {
