@@ -12,7 +12,6 @@ import imgui.type.ImBoolean;
 import imgui.type.ImInt;
 import imgui.type.ImString;
 import net.minecraft.client.util.InputUtil;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -177,6 +176,8 @@ public class ModuleTabs {
                     value = new float[]{((Number) setting.getValue()).floatValue()};
                     settingsMap.put(setting, value);
                 }
+
+                ImGui.text(setting.getName());
                 ImGui.sliderFloat(uniqueId, value, ((Number) setting.getMinimum()).floatValue(), ((Number) setting.getMaximum()).floatValue());
                 if (!setting.getValue().equals(value[0])) {
                     setting.setValue(value[0]);
@@ -195,6 +196,7 @@ public class ModuleTabs {
                     enumNames[i] = enumConstants[i].name();
                 }
 
+                ImGui.text(setting.getName());
                 int currentOrdinal = imInt.get();
                 if (ImGui.combo(uniqueId, imInt, enumNames)) {
                     if (currentOrdinal != imInt.get()) {
@@ -209,6 +211,8 @@ public class ModuleTabs {
                     imString = new ImString((String) setting.getValue());
                     settingsMap.put(setting, imString);
                 }
+
+                ImGui.text(setting.getName());
                 ImGui.inputText(uniqueId, imString, ImGuiInputTextFlags.CallbackResize);
                 String temp = imString.get();
                 if (!temp.equals(setting.getValue())) {
@@ -221,6 +225,8 @@ public class ModuleTabs {
                     imInt = new ImInt((Integer) setting.getValue());
                     settingsMap.put(setting, imInt);
                 }
+
+                ImGui.text(setting.getName());
                 ImGui.inputInt(uniqueId, imInt);
                 if (!setting.getValue().equals(imInt.get())) {
                     setting.setValue(imInt.get());
