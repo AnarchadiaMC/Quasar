@@ -21,7 +21,6 @@ public class Fly extends Module {
 
     public Fly() {
         super("Fly", "Allows you to fly.", GLFW.GLFW_KEY_F, Category.MOVEMENT);
-        this.addSettings(speed);
     }
 
     @Override

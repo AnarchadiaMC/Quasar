@@ -20,46 +20,27 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.Date;
-import java.util.stream.Stream;
 
 /**
- * ConfigManager handles saving and loading of module settings to and from an XML file, and manages backups.
+ * ConfigManager handles saving and loading of module settings to and from an XML file.
  */
 public class ConfigManager {
     private final File file;
     private final File mainDirectory;
-    private final File backupDirectory;
     private int tickCounter = 0;
     private static final int SAVE_INTERVAL = 600; // Number of ticks between saves (600 ticks = 30 seconds)
-    private long lastDailyBackupTime;
-    private static final long ONE_DAY_MILLIS = 24 * 60 * 60 * 1000L;
 
     /**
-     * Constructs a ConfigManager instance and ensures the configuration file and backup directory exist.
+     * Constructs a ConfigManager instance and ensures the configuration file exists.
      */
     public ConfigManager() {
         mainDirectory = new File(MinecraftClient.getInstance().runDirectory, "quasar");
-        backupDirectory = new File(mainDirectory, "backups");
 
         if (!mainDirectory.exists()) {
             if (mainDirectory.mkdir()) {
                 LoggingUtil.info("Created main directory for config.");
             } else {
                 LoggingUtil.logger.error("Failed to create main directory for config!");
-            }
-        }
-
-        if (!backupDirectory.exists()) {
-            if (backupDirectory.mkdir()) {
-                LoggingUtil.info("Created backup directory.");
-            } else {
-                LoggingUtil.logger.error("Failed to create backup directory!");
             }
         }
 
@@ -76,31 +57,20 @@ public class ConfigManager {
         } catch (Exception e) {
             LoggingUtil.logger.error(e.getMessage(), e);
         }
-
-        lastDailyBackupTime = System.currentTimeMillis();
     }
 
     /**
-     * Handles the tick event to save configuration and handle daily backups periodically.
+     * Handles the tick event to save configuration periodically.
      *
      * @param event The tick event.
      */
     @Listener
     public void onTick(TickEvent event) {
         tickCounter++;
-        long currentTime = System.currentTimeMillis();
 
-        // Save periodically based on ticks
         if (tickCounter >= SAVE_INTERVAL) {
             save();
             tickCounter = 0;
-        }
-
-        // Perform daily backup and clean old backups based on millisecond timing
-        if (currentTime - lastDailyBackupTime >= ONE_DAY_MILLIS) {
-            createDailyBackup();
-            cleanupOldBackups();
-            lastDailyBackupTime = currentTime;
         }
     }
 
@@ -212,7 +182,6 @@ public class ConfigManager {
             }
         } catch (Exception e) {
             LoggingUtil.logger.error("Error while loading config!", e);
-            createBackupAndRegenerate(); // Backup and regenerate config file
         }
     }
 
@@ -247,68 +216,6 @@ public class ConfigManager {
             }
         } catch (Exception e) {
             LoggingUtil.logger.error("Failed to set setting value: " + setting.getName(), e);
-        }
-    }
-
-    /**
-     * Creates a backup of the current configuration file and regenerates the configuration.
-     */
-    private void createBackupAndRegenerate() {
-        try {
-            File backupFile = new File(mainDirectory, "config_backup.xml");
-            if (file.exists()) {
-                if (backupFile.exists()) {
-                    if (!backupFile.delete()) {
-                        LoggingUtil.logger.warn("Failed to delete old backup config file!");
-                    }
-                }
-                if (!file.renameTo(backupFile)) {
-                    LoggingUtil.logger.warn("Failed to rename config file to create a backup!");
-                }
-            }
-            save(); // Save a default configuration after backing up
-        } catch (Exception e) {
-            LoggingUtil.logger.error("Failed to backup and regenerate config file", e);
-        }
-    }
-
-    /**
-     * Creates a daily backup with the current date in the filename.
-     */
-    private void createDailyBackup() {
-        try {
-            String formattedDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-            File dailyBackup = new File(backupDirectory, "config_backup_" + formattedDate + ".xml");
-
-            Files.copy(file.toPath(), dailyBackup.toPath());
-            LoggingUtil.logger.info("Created daily backup: " + dailyBackup.getName());
-        } catch (Exception e) {
-            LoggingUtil.logger.error("Failed to create daily backup!", e);
-        }
-    }
-
-    /**
-     * Deletes backups older than one week.
-     */
-    private void cleanupOldBackups() {
-        try (Stream<Path> files = Files.list(Paths.get(backupDirectory.toURI()))) {
-            files.filter(path -> path.toFile().isFile())
-                    .filter(path -> path.getFileName().toString().startsWith("config_backup_"))
-                    .forEach(path -> {
-                        try {
-                            String fileName = path.getFileName().toString();
-                            String datePart = fileName.substring("config_backup_".length(), "config_backup_YYYYMMDD".length());
-                            LocalDate fileDate = LocalDate.parse(datePart, DateTimeFormatter.ofPattern("yyyyMMdd"));
-                            if (fileDate.isBefore(LocalDate.now().minusDays(7))) {
-                                Files.delete(path);
-                                LoggingUtil.logger.info("Deleted old backup: " + fileName);
-                            }
-                        } catch (Exception e) {
-                            LoggingUtil.logger.error("Failed to cleanup old backup: " + path.getFileName(), e);
-                        }
-                    });
-        } catch (Exception e) {
-            LoggingUtil.logger.error("Error while cleaning up old backups!", e);
         }
     }
 }

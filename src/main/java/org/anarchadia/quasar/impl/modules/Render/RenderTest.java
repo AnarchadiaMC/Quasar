@@ -30,7 +30,6 @@ public class RenderTest extends Module {
 
     public RenderTest() {
         super("RenderTest", "Shows different types of rendering methods in RenderUtil.", GLFW.GLFW_KEY_UNKNOWN, Category.RENDER);
-        this.addSettings(box3D, boxOutline, outline2D, line);
     }
 
 

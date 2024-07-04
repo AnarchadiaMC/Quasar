@@ -9,7 +9,7 @@
     "render.GameRendererMixin",
     "client.WorldRendererMixin",
     "client.ClientConnectionMixin",
-    "client.ClientPlayerEntityMixin",
+    "entity.ClientPlayerEntityMixin",
     "render.InGameHudMixin",
     "client.KeyboardMixin",
     "render.ScreenMixin",

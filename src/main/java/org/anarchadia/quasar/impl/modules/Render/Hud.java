@@ -24,7 +24,6 @@ public class Hud extends Module {
 
     public Hud() {
         super("Hud", "Renders the Quasar hud.", GLFW.GLFW_KEY_UNKNOWN, Category.RENDER);
-        this.addSettings(watermark, watermarkText, arraylist, ticks, fps);
     }
 
     @Listener

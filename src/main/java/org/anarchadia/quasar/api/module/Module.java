@@ -7,6 +7,8 @@ import org.anarchadia.quasar.api.util.LoggingUtil;
 import net.minecraft.util.Formatting;
 import org.lwjgl.glfw.GLFW;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -22,7 +24,7 @@ public abstract class Module {
     public Category category;
     public boolean enabled;
     public List<Setting<?>> settings = new ArrayList<>();
-    private boolean waitingForKey = false;
+    private boolean settingsRegistered = false;
 
     /**
      * Module constructor.
@@ -42,6 +44,52 @@ public abstract class Module {
 
         /* Add default settings */
         addSettings(keyCode);
+
+        // Register the settings after the subclass constructor has completed
+        schedulePostConstruct();
+    }
+
+    private void schedulePostConstruct() {
+        // Use a technique to ensure the postConstruct method is called after the subclass constructor
+        try {
+            Class<?> clazz = this.getClass();
+            Method postConstruct = clazz.getDeclaredMethod("postConstruct");
+            postConstruct.setAccessible(true);
+            postConstruct.invoke(this);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * This method should be called after the subclass constructor completes.
+     */
+    private void postConstruct() {
+        registerSettings();
+    }
+
+    /**
+     * Registers all `Setting` fields in the module using reflection.
+     */
+    protected void registerSettings() {
+        if (settingsRegistered) return;
+
+        Field[] fields = this.getClass().getDeclaredFields();
+        for (Field field : fields) {
+            if (Setting.class.isAssignableFrom(field.getType())) {
+                try {
+                    field.setAccessible(true);
+                    Setting<?> setting = (Setting<?>) field.get(this);
+                    if (setting != null && !settings.contains(setting)) {
+                        addSettings(setting);
+                    }
+                } catch (IllegalAccessException e) {
+                    System.out.println("Failed to access field: " + field.getName() + " - " + e.getMessage());
+                }
+            }
+        }
+        settings.sort(Comparator.comparingInt(s -> s == keyCode ? 0 : 1));
+        settingsRegistered = true;
     }
 
     public void startBinding() {
@@ -52,20 +100,8 @@ public abstract class Module {
         return Quasar.getInstance().getModuleManager().getCurrentlyBindingModule() == this;
     }
 
-    public void handleKeyPress(int key) {
-        if (waitingForKey) {
-            if (key == GLFW.GLFW_KEY_ESCAPE) {
-                // Cancel binding
-                waitingForKey = false;
-            } else {
-                this.keyCode.setValue(key);
-                waitingForKey = false;
-            }
-        }
-    }
-
     /**
-     * Adds settings to the module. Must be called in the constructor.
+     * Adds settings to the module.
      *
      * @param settings settings to add
      */
@@ -164,6 +200,9 @@ public abstract class Module {
      * @return the list of settings.
      */
     public List<Setting<?>> getSettings() {
+        if (!settingsRegistered) {
+            registerSettings();
+        }
         return settings;
     }
 
