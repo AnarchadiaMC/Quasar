@@ -23,14 +23,13 @@ public class Fly extends Module {
         super("Fly", "Allows you to fly.", GLFW.GLFW_KEY_F, Category.MOVEMENT);
     }
 
+
     @Override
     public void onDisable() {
         if (mc.world == null || mc.player == null) return;
         mc.player.getAbilities().flying = false;
         mc.player.getAbilities().allowFlying = false;
         mc.player.getAbilities().setFlySpeed(0.05f);
-
-        super.onDisable();
     }
 
     @Listener

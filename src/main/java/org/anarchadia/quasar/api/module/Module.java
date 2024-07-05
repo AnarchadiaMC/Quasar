@@ -5,10 +5,8 @@ import org.anarchadia.quasar.Quasar;
 import org.anarchadia.quasar.api.setting.Setting;
 import org.anarchadia.quasar.api.util.LoggingUtil;
 import net.minecraft.util.Formatting;
-import org.lwjgl.glfw.GLFW;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -22,7 +20,7 @@ public abstract class Module {
     public String name, description;
     public Setting<Integer> keyCode;
     public Category category;
-    public boolean enabled;
+    protected boolean enabled;
     public List<Setting<?>> settings = new ArrayList<>();
     private boolean settingsRegistered = false;
 
@@ -35,36 +33,16 @@ public abstract class Module {
      * @param category    module category.
      */
     public Module(String name, String description, int key, Category category) {
-        super();
         this.name = name;
         this.description = description;
         this.keyCode = new Setting<>("keyCode", "Key binding for module", key);
         this.category = category;
-        this.enabled = false; // Ensure default value
+        this.enabled = false;
 
         /* Add default settings */
         addSettings(keyCode);
 
         // Register the settings after the subclass constructor has completed
-        schedulePostConstruct();
-    }
-
-    private void schedulePostConstruct() {
-        // Use a technique to ensure the postConstruct method is called after the subclass constructor
-        try {
-            Class<?> clazz = this.getClass();
-            Method postConstruct = clazz.getDeclaredMethod("postConstruct");
-            postConstruct.setAccessible(true);
-            postConstruct.invoke(this);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * This method should be called after the subclass constructor completes.
-     */
-    private void postConstruct() {
         registerSettings();
     }
 
@@ -111,41 +89,10 @@ public abstract class Module {
     }
 
     /**
-     * Called when the module is enabled.
-     */
-    public void onEnable() {
-        Quasar.getInstance().getEventManager().addEventListener(this);
-        Quasar.getInstance().getConfigManager().save();
-
-        LoggingUtil.info(Formatting.GREEN + "Enabled " + this.getName() + "!");
-    }
-
-    /**
-     * Called when the module is disabled.
-     */
-    public void onDisable() {
-        Quasar.getInstance().getEventManager().removeEventListener(this);
-        Quasar.getInstance().getConfigManager().save();
-
-        LoggingUtil.info(Formatting.RED + "Disabled " + this.getName() + "!");
-    }
-
-    /**
      * Toggles the module's state.
      */
     public void toggle() {
-        this.enabled = !this.enabled;
-        if (this.enabled) onEnable();
-        else onDisable();
-    }
-
-    /**
-     * Checks if the module is enabled.
-     *
-     * @return true if the module is enabled, false otherwise.
-     */
-    public boolean isEnabled() {
-        return this.enabled;
+        setEnabled(!enabled);
     }
 
     /**
@@ -155,8 +102,51 @@ public abstract class Module {
      */
     public void setEnabled(boolean enabled) {
         if (this.enabled != enabled) {
-            toggle();
+            this.enabled = enabled;
+            if (enabled) {
+                enable();
+            } else {
+                disable();
+            }
+            Quasar.getInstance().getConfigManager().save();
         }
+    }
+
+    /**
+     * Enables the module.
+     */
+    private void enable() {
+        onEnable();
+        Quasar.getInstance().getEventManager().addEventListener(this);
+        LoggingUtil.info(Formatting.GREEN + "Enabled " + this.getName() + "!");
+    }
+
+    /**
+     * Disables the module.
+     */
+    private void disable() {
+        onDisable();
+        Quasar.getInstance().getEventManager().removeEventListener(this);
+        LoggingUtil.info(Formatting.RED + "Disabled " + this.getName() + "!");
+    }
+
+    /**
+     * Called when the module is enabled. Subclasses can override this method.
+     */
+    protected void onEnable() {}
+
+    /**
+     * Called when the module is disabled. Subclasses can override this method.
+     */
+    protected void onDisable() {}
+
+    /**
+     * Checks if the module is enabled.
+     *
+     * @return true if the module is enabled, false otherwise.
+     */
+    public boolean isEnabled() {
+        return this.enabled;
     }
 
     /**
@@ -223,8 +213,6 @@ public abstract class Module {
     public int getKey() {
         return this.keyCode.getValue();
     }
-
-    /* -------- Setters -------- */
 
     /**
      * Sets the key code of the module.

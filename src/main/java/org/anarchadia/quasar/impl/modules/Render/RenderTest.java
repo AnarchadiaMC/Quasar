@@ -35,14 +35,8 @@ public class RenderTest extends Module {
 
     @Override
     public void onEnable() {
-        super.onEnable();
 
         LoggingUtil.info("RenderTest will be rendering on the player. Change to third person view, to see them correctly.");
-    }
-
-    @Override
-    public void onDisable() {
-        super.onDisable();
     }
 
     @Listener
